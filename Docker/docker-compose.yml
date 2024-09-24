@@ -58,6 +58,8 @@ services:
     image: mariadb:latest
     container_name: mariadb
     restart: always
+    env_file:
+      - .env
     expose:
       - "3306"
     environment:

@@ -18,9 +18,6 @@ validatepass\
     .no().spaces()
     
 logged_in_username = None
-
-#This is a testline for Github
-        
     
 def two_factor_qrcode(username = None):
     global logged_in_username

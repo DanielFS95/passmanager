@@ -24,5 +24,5 @@ jobs:
         run: docker build ./Docker --file ./Docker/Dockerfile --tag danielfs95/danielfsdocker:$(date +%s)
 
       - name: Push the Docker image
-        run: docker push your-dockerhub-username/my-image-name:$(date +%s)
+        run: docker push danielfs95/danielfsdocker:$(date +%s)
 

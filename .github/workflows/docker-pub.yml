@@ -3,11 +3,15 @@ name: Docker Image CI
 on:
   push:
     branches: [ "master" ]
-    paths: Docker/DBAPI.py
+    paths: 
+      - Docker/DBAPI.py
+      - Docker/Dockerfile
   pull_request:
     branches: [ "master" ]
-    paths: Docker/DBAPI.py
-
+    paths: 
+      - Docker/DBAPI.py
+      - Docker/Dockerfile
+      
 jobs:
   build:
     runs-on: ubuntu-latest

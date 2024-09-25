@@ -92,7 +92,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   watchtower:
-    image: containerrr/watchtower
+    image: containrrr/watchtower
     container_name: watchtower
     env_file:
       - .env

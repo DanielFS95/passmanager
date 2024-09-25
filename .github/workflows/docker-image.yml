@@ -26,5 +26,5 @@ jobs:
           docker build ./Docker --file ./Docker/Dockerfile --tag $IMAGE_TAG
 
       - name: Push the Docker image
-        run: docker push danielfs95/danielfsdocker:$IMAGE_TAG
+        run: docker push $IMAGE_TAG
 

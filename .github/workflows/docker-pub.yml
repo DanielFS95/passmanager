@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag danielfs95/danielfsdocker:$(date +%s)
+        run: docker build ./Docker --file ./Docker/Dockerfile --tag danielfs95/danielfsdocker:$(date +%s)
 
       - name: Push the Docker image
         run: docker push danielfs95/danielfsdocker:$(date +%s)

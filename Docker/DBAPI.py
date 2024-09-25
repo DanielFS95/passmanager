@@ -102,8 +102,6 @@ def validate_tfa(tfa_code, username, user_id):
         return e
 
 
-#TESTING
-
 #When a user inputs a password to be stored. Encrypt it with AES-GCM.
 def pass_encrypt(key, password):
     cipher = AES.new(key, AES.MODE_GCM)

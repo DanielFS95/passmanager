@@ -11,6 +11,7 @@ services:
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -88,6 +89,17 @@ services:
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
       - "traefik.http.services.api.loadbalancer.server.port=8000"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containerrr/watchtower
+    container_name: watchtower
+    environment:
+      - REPO_USER=${DOCKER_USER}
+      - REPO_PASS=${DOCKER_PASS}
+      - WATCHTOWER_LABEL_ENABLE
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes: 
   portainer_data:

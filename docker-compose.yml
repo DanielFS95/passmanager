@@ -104,7 +104,7 @@ services:
       - WATCHTOWER_CLEANUP= true
       #- WATCHTOWER_SCHEDULE=0 0 * * * *
       - WATCHTOWER_DEBUG=true
-      - WATCHTOWER_POLL_INTERVAL=90
+      - WATCHTOWER_POLL_INTERVAL=300
     volumes:
       - /home/danielfs/docker/config.json:/config.json
       - /var/run/docker.sock:/var/run/docker.sock

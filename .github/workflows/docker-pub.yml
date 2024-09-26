@@ -4,13 +4,13 @@ on:
   push:
     branches: [ "master" ]
     paths: 
-      - Docker/DBAPI.py
-      - Docker/Dockerfile
+      - API/DBAPI.py
+      - API/Dockerfile
   pull_request:
     branches: [ "master" ]
     paths: 
-      - Docker/DBAPI.py
-      - Docker/Dockerfile
+      - API/DBAPI.py
+      - API/Dockerfile
   workflow_dispatch:
       
 jobs:
@@ -28,7 +28,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build the Docker image
-        run: docker build ./Docker --file ./Docker/Dockerfile --tag danielfs95/danielfsdocker:latest
+        run: docker build ./API --file ./API/Dockerfile --tag danielfs95/danielfsdocker:latest
 
       - name: Push the Docker image
         run: docker push danielfs95/danielfsdocker:latest

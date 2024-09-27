@@ -1,7 +1,6 @@
 import mariadb
 import arrow
-import datetime
-from datetime import timedelta
+from datetime import timedelta, datetime
 from password_validator import PasswordValidator
 import os
 import base64

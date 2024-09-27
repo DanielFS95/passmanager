@@ -8,7 +8,7 @@ Everything is setup in Docker, and uses Traefik as a Reverse Proxy to gain a TLS
 
 # Technologies/features used in this project currently:
 
-- User/Account Creation (With rules for password length and )
+- User/Account Creation (With rules for password length/strength)
 - Login system (session based)
 - 2FA-Authentication option (ASCII QR-Code in CLI-Program)
 - Encryption and Decryption using AES-GCM

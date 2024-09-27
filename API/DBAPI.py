@@ -363,6 +363,7 @@ def user_login():
             store_session(session_token, user_id, expires_at, username)
             response = jsonify({"success": "Login succesfuldt!"})
             response.set_cookie("session_token", session_token)
+            response.set_cookie("username", username)
             return response, 200
 
     else:

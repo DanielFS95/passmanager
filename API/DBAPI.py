@@ -482,16 +482,16 @@ def remove_specific_service():
     try:
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute("DELETE FROM user_info WHERE service = %s AND username = %s AND user_id = %s",(service, username, user_id),)
+                cursor.execute("DELETE FROM user_info WHERE service = %s AND username = %s AND user_id = %s", (service, username, user_id),)
                 if cursor.rowcount == 0:
-                    return (jsonify({"error": "Service-navnet eller brugernavnet findes ikke!"}),404,)
+                    return (jsonify({"error": "Service-navnet eller brugernavnet findes ikke!"}), 404,)
                 conn.commit()
                 return jsonify({"status": "Oplysninger slettet"}), 200
     except mariadb.Error as e:
         return jsonify({"error": str(e)}), 500
 
 
-# Used when the service is listed only once. Deletes using only service and user_id. 
+# Used when the service is listed only once. Deletes using only service and user_id.
 @app.route("/user/services/remove", methods=["DELETE"])
 @limiter.limit("100/hour")
 def remove_service():

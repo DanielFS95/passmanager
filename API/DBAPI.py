@@ -253,26 +253,26 @@ def tfa_generate():
 @app.route("/tfa/verify", methods=["POST"])
 @limiter.limit("100/hour")
 def verify_tfa():
-        data = request.get_json()
-        username = session.get("username")
-        tfa_code = data.get("tfa_code")
-        tfa_key = tfa_k[username]
-        totp = pyotp.TOTP(tfa_key)
-        session.pop("username", None)
-        if totp.verify(tfa_code):
-            user_id = get_user_id_with_username(username)
-            encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
-            key = pass_encrypt(encryption_key, tfa_key)
-            try:
-                with pool.get_connection() as conn:
-                    with conn.cursor() as cursor:
-                        cursor.execute("UPDATE pm_users SET tfa_key = %s WHERE user_id = %s AND username = %s",(key, user_id, username),)
-                        conn.commit()
-            except mariadb.Error as e:
-                return jsonify({"error": str(e)})
-            return jsonify({"tfa_complete":"succes"}), 200
-        else:
-            return jsonify({"error":"Cant verify 2FA!"}), 500
+    data = request.get_json()
+    username = session.get("username")
+    tfa_code = data.get("tfa_code")
+    tfa_key = tfa_k[username]
+    totp = pyotp.TOTP(tfa_key)
+    session.pop("username", None)
+    if totp.verify(tfa_code):
+        user_id = get_user_id_with_username(username)
+        encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
+        key = pass_encrypt(encryption_key, tfa_key)
+        try:
+            with pool.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("UPDATE pm_users SET tfa_key = %s WHERE user_id = %s AND username = %s",(key, user_id, username),)
+                    conn.commit()
+        except mariadb.Error as e:
+            return jsonify({"error": str(e)})
+        return jsonify({"tfa_complete":"succes"}), 200
+    else:
+        return jsonify({"error":"Cant verify 2FA!"}), 500
 
 
 #User to "turn off" 2FA for an account

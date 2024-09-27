@@ -16,13 +16,14 @@ validatepass\
     .has().lowercase()\
     .has().digits()\
     .no().spaces()
-    
+
 logged_in_username = None
-    
-def two_factor_qrcode(username = None):
+
+
+def two_factor_qrcode(username=None):
     global logged_in_username
     username = username or logged_in_username
-    jsondata = {"username":username}
+    jsondata = {"username": username}
     headers = {"Content-Type": "application/json"}
     r = s.post("https://api.dfsprojekt.dk/tfa/generate", json=jsondata, headers=headers)
     data = r.json().get("qr_code_succes")
@@ -31,7 +32,7 @@ def two_factor_qrcode(username = None):
         while True:
             tfa_code = input("Indtast en 2FA-Kode for at forsætte: ")
             headers = {"Content-Type": "application/json"}
-            jsondata =  {"tfa_code":tfa_code}
+            jsondata = {"tfa_code": tfa_code}
             r = s.post("https://api.dfsprojekt.dk/tfa/verify", json=jsondata, headers=headers)
             if r.status_code == 200 and r.json().get("tfa_complete"):
                 return False
@@ -41,14 +42,14 @@ def two_factor_qrcode(username = None):
             elif tfa_code == "b":
                 break
         return True
-    
-    
+
+
 def remove_tfa():
     global logged_in_username
     tfa_code = input("Indtast din 2FA Kode: ")
     username = logged_in_username
     headers = {"Content-Type": "application/json"}
-    jsondata = {"username":username, "tfa_code": tfa_code}
+    jsondata = {"username": username, "tfa_code": tfa_code}
     r = s.delete("https://api.dfsprojekt.dk/tfa/remove", json=jsondata, headers=headers)
     if r.status_code == 200 and r.json().get("tfa_removed"):
         clear_screen()
@@ -56,8 +57,7 @@ def remove_tfa():
     else:
         clear_screen()
         console.print("[bold bright_red]Der opstod et problem, og 2FA blev ikke fjernet fra din account[/bold bright_red]")
-        
-    
+
 
 def check_username(username):
     headers = {"Content-Type": "application/json"}
@@ -65,7 +65,7 @@ def check_username(username):
     t = s.get("https://api.dfsprojekt.dk/usernames/availability", json=jsondata, headers=headers)
     return t.json().get("available", False)
 
-    
+
 def delete_user():
     global logged_in_username
     while True:
@@ -84,12 +84,12 @@ def delete_user():
     password = pwinput.pwinput("Indtast dit password: ")
     username = logged_in_username
     headers = {"Content-Type": "application/json"}
-    jsondata = {"username":username,"password":password}
+    jsondata = {"username": username, "password": password}
     r = s.post("https://api.dfsprojekt.dk/user/accountdelete", json=jsondata, headers=headers)
     if r.status_code == 200 and r.json().get("tfa_confirm"):
         username = r.json().get("username")
         tfa_code = input("Indtast din 2FA Kode: ")
-        jsondata = {"tfa_code":tfa_code, "username":username}
+        jsondata = {"tfa_code": tfa_code, "username": username}
         r = s.post("https://api.dfsprojekt.dk/user/accountdelete/tfa", json=jsondata, headers=headers)
         if r.status_code == 200 and r.json().get("delete_complete"):
             clear_screen()
@@ -107,7 +107,7 @@ def create_user():
         if username == "b":
             clear_screen()
             return True
-        
+
         # Check if the username is available
         if not check_username(username):
             console.print("[bold bright_red]Brugernavnet er allerede taget. Prøv et andet![/bold bright_red]")
@@ -165,14 +165,12 @@ def create_user():
             console.print("[bold bright_red]Der opstod et problem under konto oprettelsen.[/bold bright_red]")
             return False
 
-            
-
 
 def login(username, password):
     global logged_in_username
     login_info = {"username": username, "password": password}
     r = s.post("https://api.dfsprojekt.dk/user/login",json=login_info, headers={"Content-Type": "application/json"})
-    
+
     if r.status_code == 200 and r.json().get("success"):
         print("Du er nu logget på!")
         logged_in_username = username
@@ -180,7 +178,7 @@ def login(username, password):
     elif r.status_code == 200 and r.json().get("get_tfa_code"):
         username = r.json().get("username")
         tfa_code = input("Indtast din 2FA Kode: ")
-        jsondata = {"tfa_code":tfa_code, "username":username}
+        jsondata = {"tfa_code": tfa_code, "username": username}
         r = s.post("https://api.dfsprojekt.dk/user/login/2fa", json=jsondata, headers={"Content-Type": "application/json"})
         if r.status_code == 200 and r.json().get("tfa-success"):
             print("Succes! du er nu logget på!")
@@ -190,8 +188,7 @@ def login(username, password):
     print("Dit login fejlede!")
     return False
 
- 
-        
+
 def logout():
     if not s.cookies:
         console.print("[bold bright_red]Du skal være logget ind først![/bold bright_red]")
@@ -205,12 +202,11 @@ def logout():
         print(f"Der opstod en fejl: {e}")
 
 
-
 def add_service():
     if not s.cookies.get("session_token"):
         console.print("[bold bright_red]Du skal være logget ind først![/bold bright_red]")
         return False
-    
+
     console.print("[bold cyan]Tilføj en service til Password Manageren[/bold cyan]")
     print("\n")
     console.print('[italic underline]Skriv "b" for at fortryde og vende tilbage til menuen[/italic underline]\n')
@@ -224,20 +220,19 @@ def add_service():
     password = input(f"Indtast nu det password du bruger til {username}: ")
     if password == "b":
         return "break"
-    
+
     userinfo = None
     account_found = False
     service_found = False
 
     if password and username and service:
-        
         try:
             r = s.get("https://api.dfsprojekt.dk/user/services/servicelist")
             r.raise_for_status()
         except requests.RequestException as e:
             print({e})
             return False
-        
+
         servicelist = r.json()
         if "services" in servicelist:
             for saved_service, accounts in servicelist["services"].items():
@@ -247,19 +242,19 @@ def add_service():
                         if username.lower() == account.lower():
                             account_found = True
                             console.print(f"\n[yellow]Der er allerede gemt et password for [white underline]{username}[/white underline] ved servicen [white underline]{service}[/white underline][/yellow]\n")
-                            choice = input(f"Ønsker du at overskrive det tidligere gemte password?(j/n): ")
+                            choice = input("Ønsker du at overskrive det tidligere gemte password?(j/n): ")
                             if choice == "j":
-                                userinfo = {"already_exist":{"service": service,"username": username,"password": password}}
+                                userinfo = {"already_exist": {"service": service, "username": username, "password": password}}
                             else:
                                 console.print("[red]Dit password blev ikke ændret![/red]")
                                 return False
                     if not account_found:
-                        userinfo = {"service": service,"username": username,"password": password}
-                        break         
-                                                    
+                        userinfo = {"service": service, "username": username, "password": password}
+                        break
+
             if not service_found:
-                userinfo = {"service": service,"username": username,"password": password}
-                        
+                userinfo = {"service": service, "username": username, "password": password}
+
     headers = {"Content-Type": "application/json"}
     r = s.post("https://api.dfsprojekt.dk/user/services", json=userinfo, headers=headers)
     if r.json().get("status", False):
@@ -271,7 +266,7 @@ def add_service():
         console.print(f"[bold bright_green]Success! Dit password til accounten [white underline]{username}[/white underline] for servicen [white underline]{service}[/white underline] blev opdateret![/bold bright_green]")
     elif r.json().get("timeout"):
         print("\n")
-        console.print(f"[underline yellow italic] Din session er udløbet! Log ind igen![/underline yellow italic]")
+        console.print("[underline yellow italic] Din session er udløbet! Log ind igen![/underline yellow italic]")
 
         console.print("[bold bright_red]Der skete en fejl![/bold bright_red]")
         return False
@@ -302,7 +297,6 @@ def retrieve_password():
 
     service_choice = input("\nHvilken service ønsker du at se password for?: ")
 
-
     if service_choice not in servicelist["services"]:
         console.print(f"\n\n[underline]{service_choice}[/underline] [bold bright_red]er ikke en gemt service. Vælg venligst en gyldig service.[/bold bright_red]\n\n")
         return False
@@ -312,8 +306,8 @@ def retrieve_password():
         console.print(f"\n[italic]Der blev fundet {len(accounts)} accounts fra servicen[/italic] [underline]{service_choice}[/underline]:")
         for account in accounts:
             console.print(f"[bold]{account}[/bold]")
-        chosen_account = input(f"\nHvilken account ønsker du at se password for?: ")
-        userinfo = {"service": service_choice,"account": chosen_account}
+        chosen_account = input("\nHvilken account ønsker du at se password for?: ")
+        userinfo = {"service": service_choice, "account": chosen_account}
         try:
             headers = {"Content-Type": "application/json"}
             r = s.get("https://api.dfsprojekt.dk/user/services/retrievespecific", json=userinfo, headers=headers)
@@ -383,8 +377,8 @@ def remove_pass():
         for account in accounts:
             console.print(f"[bold]{account}[/bold]")
         chosen_account = input(f"Hvilken account ønsker du at fjerne fra {service_choice}?: ")
-        
-        userinfo = {"service": service_choice,"account": chosen_account}
+
+        userinfo = {"service": service_choice, "account": chosen_account}
         try:
             r2 = s.delete("https://api.dfsprojekt.dk/user/services/removespecific", json=userinfo, headers={"Content-Type": "application/json"},)
             r2.raise_for_status()
@@ -406,7 +400,7 @@ def remove_pass():
                 print("\n")
                 console.print("[bold bright_green]Dine oplysninger blev slettet succesfuldt![/bold bright_green]")
                 return True
-            
+
         except requests.RequestException as e:
             print(f"Der opstod en fejl: {e}")
             return False
@@ -471,16 +465,16 @@ if __name__ == "__main__":
 
             elif choice_start == "2":
                 clear_screen()
-                console.print("[bold cyan]Opret en konto for at bruge Daniels Password Manager.[/bold cyan]") 
+                console.print("[bold cyan]Opret en konto for at bruge Daniels Password Manager.[/bold cyan]")
                 console.print("[italic]Skriv \"b\" i enten username eller password feltet for at afbryde oprettelsen[/italic]")
                 print("\n")
                 account_created = create_user()
                 if not account_created:
                     console.print("Der opstod et problem, og din account blev ikke oprettet!")
-                    
+
             elif choice_start == "3":
                 break
-                
+
             else:
                 clear_screen()
                 console.print("[bold bright_red]Ikke en valgmulighed, prøv igen.[/bold bright_red]")
@@ -514,12 +508,12 @@ if __name__ == "__main__":
                         clear_screen()
                         break
                     clear_screen()
-                    
+
             elif choice == "2":
                 clear_screen()
                 while True:
                     retrieve = retrieve_password()
-                    if retrieve == True:
+                    if retrieve is True:
                         print("\n")
                         user_pick = input("Ønsker du at finde et nyt password? (j/n): ")
                         if user_pick == "n":
@@ -531,12 +525,12 @@ if __name__ == "__main__":
                         msvcrt.getch()
                         clear_screen()
                         break
-                    
+
             elif choice == "3":
                 clear_screen()
                 while True:
                     remove = remove_pass()
-                    if remove == True:
+                    if remove is True:
                         print("\n")
                         user_pick = input("Ønsker du at fjerne flere passwords? (j/n): ")
                         if user_pick == "n":
@@ -564,33 +558,32 @@ if __name__ == "__main__":
                         clear_screen()
                         two_factor_qrcode()
                         break
-                    
+
                     elif settings_choice == "2":
                         clear_screen()
                         remove_tfa()
                         break
-                    
+
                     elif settings_choice == "3":
                         clear_screen()
                         delete_user()
                         break
-                        
+
                     elif settings_choice == "b":
                         clear_screen()
                         break
-                    
+
                     else:
                         console.print("Ikke et gyldigt valg, prøv igen!.")
-                    
-                    
+
             elif choice == "5":
                 logout()
                 clear_screen()
-                
+
             elif choice == "6":
                 logout()
                 break
-            
+
             else:
                 clear_screen()
                 console.print("[bold bright_red]Dette er ikke en valgmulighed! Vælg en af de opstillede muligheder[/bold bright_red]")

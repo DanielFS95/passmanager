@@ -5,6 +5,7 @@ from .common import console, clear_screen
 
 s = requests.Session()
 
+logged_in_username = None
 
 validatepass = PasswordValidator()
 validatepass\
@@ -13,8 +14,6 @@ validatepass\
     .has().lowercase()\
     .has().digits()\
     .no().spaces()
-
-logged_in_username = None
 
 
 def login(username, password):
@@ -119,6 +118,7 @@ def delete_user():
             clear_screen()
             print("Ugyldigt input! Bekræft venligst at du ønsker at slette din account")
             continue
+
     console.print("[underline]For at kunne slette din account skal du bekræfte med Password og 2FA (Såfremt 2FA er aktivt)[/underline]")
     password = pwinput.pwinput("Indtast dit password: ")
     username = logged_in_username

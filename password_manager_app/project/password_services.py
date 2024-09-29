@@ -70,31 +70,21 @@ def remove_pass():
         chosen_account = input(f"Hvilken account ønsker du at fjerne fra {service_choice}?: ")
 
         userinfo = {"service": service_choice, "account": chosen_account}
-        try:
-            r2 = s.delete("https://api.dfsprojekt.dk/user/services/removespecific", json=userinfo, headers={"Content-Type": "application/json"},)
-            r2.raise_for_status()
-            if r2.json().get("status", False):
-                print("\n")
-                console.print("[bold bright_green]Dine oplysninger blev slettet succesfuldt![/bold bright_green]")
-                return True
-
-        except requests.RequestException as e:
-            print(f"Der opstod en fejl: {e}")
-            return False
 
     else:
         userinfo = {"service": service_choice}
-        try:
-            r2 = s.delete("https://api.dfsprojekt.dk/user/services/remove", json=userinfo, headers={"Content-Type": "application/json"},)
-            r2.raise_for_status()
-            if r2.json().get("status", False):
-                print("\n")
-                console.print("[bold bright_green]Dine oplysninger blev slettet succesfuldt![/bold bright_green]")
-                return True
 
-        except requests.RequestException as e:
-            print(f"Der opstod en fejl: {e}")
-            return False
+    try:
+        r2 = s.delete("https://api.dfsprojekt.dk/user/services/remove", json=userinfo, headers={"Content-Type": "application/json"},)
+        r2.raise_for_status()
+        if r2.json().get("status", False):
+            print("\n")
+            console.print("[bold bright_green]Dine oplysninger blev slettet succesfuldt![/bold bright_green]")
+            return True
+
+    except requests.RequestException as e:
+        print(f"Der opstod en fejl: {e}")
+        return False
 
 
 def retrieve_password():
@@ -136,21 +126,15 @@ def retrieve_password():
             console.print(f"[bold]{account}[/bold]")
         chosen_account = input("\nHvilken account ønsker du at se password for?: ")
         userinfo = {"service": service_choice, "account": chosen_account}
-        try:
-            headers = {"Content-Type": "application/json"}
-            r = s.get("https://api.dfsprojekt.dk/user/services/retrievespecific", json=userinfo, headers=headers)
-        except requests.RequestException as e:
-            print({e})
-            return False
     else:
         userinfo = {"service": service_choice}
 
-        try:
-            headers = {"Content-Type": "application/json"}
-            r = s.get("https://api.dfsprojekt.dk/user/services/retrieve", json=userinfo, headers=headers)
-        except requests.RequestException as e:
-            print({e})
-            return False
+    try:
+        headers = {"Content-Type": "application/json"}
+        r = s.get("https://api.dfsprojekt.dk/user/services/retrieve", json=userinfo, headers=headers)
+    except requests.RequestException as e:
+        print({e})
+        return False
 
     try:
         jsondata = r.json()
@@ -221,7 +205,7 @@ def add_service():
                 userinfo = {"service": service, "username": username, "password": password}
 
     headers = {"Content-Type": "application/json"}
-    r = s.post("https://api.dfsprojekt.dk/user/services", json=userinfo, headers=headers)
+    r = s.post("https://api.dfsprojekt.dk/user/services/add", json=userinfo, headers=headers)
     if r.json().get("status", False):
         print("\n")
         console.print(f"[bold bright_green]Success! Dit password til [/bold bright_green][underline]{service}[/underline][bold bright_green] for [/bold bright_green][underline]{username}[/underline] [bold bright_green]blev tilføjet til Password Manageren![/bold bright_green]")

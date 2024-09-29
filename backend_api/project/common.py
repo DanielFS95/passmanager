@@ -1,5 +1,4 @@
 import mariadb
-from flask import current_app
 from password_validator import PasswordValidator
 import os
 from flask_limiter import Limiter

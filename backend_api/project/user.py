@@ -2,12 +2,14 @@ from flask import Blueprint
 import mariadb
 from flask import request, jsonify, session
 import ulid
-from project.common import limiter, pool, get_doppler_secrets
+from project.common import limiter, get_connection_pool, get_doppler_secrets
 from project.auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt
 from project.two_factor_auth import tfa_check, validate_tfa
 
 
 user_bp = Blueprint('user', __name__)
+
+pool = get_connection_pool()
 
 
 # Used for adding a new service to the password manager for a specfic account.

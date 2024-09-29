@@ -3,11 +3,13 @@ import mariadb
 from datetime import timedelta, datetime
 import ulid
 import secrets
-from project.common import limiter, validatepass, pool
+from project.common import limiter, validatepass, get_connection_pool
 from project.auth_tools import hash_pass, store_session, check_pass, get_user_id_with_username
 from project.two_factor_auth import tfa_check
 
 auth_bp = Blueprint('account', __name__)
+
+pool = get_connection_pool()
 
 
 @auth_bp.route("/register", methods=["PUT"])

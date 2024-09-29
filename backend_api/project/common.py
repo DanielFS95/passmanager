@@ -39,12 +39,19 @@ def get_doppler_secrets(secret_name):
         return values.get("raw")
 
 
+pool = None
+
+
 # Connection pool. To speed up the process of checking database.
-pool = mariadb.ConnectionPool(
-    user=get_doppler_secrets("MARIADB_USER"),
-    password=get_doppler_secrets("MARIADB_PASS"),
-    host=get_doppler_secrets("MARIADB_HOST"),
-    port=int(get_doppler_secrets("MARIADB_PORT")),
-    database=get_doppler_secrets("MARIADB_DATABASE"),
-    pool_name="mypool",
-    pool_size=5,)
+def get_connection_pool():
+    global pool
+    if pool is None:
+        pool = mariadb.ConnectionPool(
+            user=get_doppler_secrets("MARIADB_USER"),
+            password=get_doppler_secrets("MARIADB_PASS"),
+            host=get_doppler_secrets("MARIADB_HOST"),
+            port=int(get_doppler_secrets("MARIADB_PORT")),
+            database=get_doppler_secrets("MARIADB_DATABASE"),
+            pool_name="mypool",
+            pool_size=5,)
+    return pool

@@ -6,12 +6,13 @@ import secrets
 import pyotp
 import qrcode
 from io import StringIO
-from project.common import pool, get_doppler_secrets, limiter
+from project.common import get_connection_pool, get_doppler_secrets, limiter
 from project.auth_tools import get_user_id_with_username, get_user_id_with_session_token, check_session, store_session, pass_decrypt, pass_encrypt
 
 
 tfa_bp = Blueprint('tfa', __name__)
 
+pool = get_connection_pool()
 
 store_secret_key = {}      # Bruges til at kunne udnytte store_secret_key i anden funktion, uden behov for at sende nøglen tilbage igen. (Ingen session oprettet her)
 

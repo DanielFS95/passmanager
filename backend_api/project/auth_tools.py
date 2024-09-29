@@ -5,7 +5,9 @@ import base64
 from flask import jsonify
 from Crypto.Cipher import AES
 import bcrypt
-from project.common import pool
+from project.common import get_connection_pool
+
+pool = get_connection_pool()
 
 
 def pass_encrypt(key, password):

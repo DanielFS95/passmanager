@@ -49,26 +49,22 @@ pool = None
 def get_connection_pool():
     global pool
     if pool is None:
-        logging.debug("Initializing MariaDB connection pool...")
-        user = get_doppler_secrets("MARIADB_USER")
-        password = get_doppler_secrets("MARIADB_PASS")
-        host = get_doppler_secrets("MARIADB_HOST")
-        port = int(get_doppler_secrets("MARIADB_PORT"))
-        database = get_doppler_secrets("MARIADB_DATABASE")
-
-        # Log the retrieved secrets to ensure they are not None
-        logging.debug(f"User: {user}, Host: {host}, Port: {port}, Database: {database}")
-
-        if not all([user, password, host, database]):
-            raise ValueError("Failed to retrieve database credentials from Doppler")
-
-        pool = mariadb.ConnectionPool(
-            user=user,
-            password=password,
-            host=host,
-            port=port,
-            database=database,
-            pool_name="mypool",
-            pool_size=5
-        )
+        try:
+            logging.debug("Attempting to initialize MariaDB connection pool...")
+            pool = mariadb.ConnectionPool(
+                user=get_doppler_secrets("MARIADB_USER"),
+                password=get_doppler_secrets("MARIADB_PASS"),
+                host=get_doppler_secrets("MARIADB_HOST"),
+                port=int(get_doppler_secrets("MARIADB_PORT")),
+                database=get_doppler_secrets("MARIADB_DATABASE"),
+                pool_name="mypool",
+                pool_size=5
+            )
+            logging.debug("Connection pool initialized successfully.")
+        except mariadb.OperationalError as e:
+            logging.error(f"Operational error while connecting to the database: {e}")
+        except mariadb.InterfaceError as e:
+            logging.error(f"Interface error: {e}")
+        except Exception as e:
+            logging.error(f"Unexpected error: {e}")
     return pool

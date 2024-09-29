@@ -73,7 +73,8 @@ services:
 
   api:
     build:
-      context: backend_api/Dockerfile
+      context: backend_api
+      dockerfile: Dockerfile
     container_name: api
     restart: always
     expose:

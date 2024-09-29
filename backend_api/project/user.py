@@ -2,9 +2,9 @@ from flask import Blueprint
 import mariadb
 from flask import request, jsonify, session
 import ulid
-from common import limiter, pool, get_doppler_secrets
-from auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt
-from two_factor_auth import tfa_check, validate_tfa
+from project.common import limiter, pool, get_doppler_secrets
+from project.auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt
+from project.two_factor_auth import tfa_check, validate_tfa
 
 
 user_bp = Blueprint('user', __name__)

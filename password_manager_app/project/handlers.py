@@ -1,7 +1,8 @@
 import msvcrt
 from .common import console, clear_screen
 from .password_services import list_services, retrieve_password, add_service, remove_pass
-from .auth import pwinput, login, create_user, delete_user, remove_tfa, two_factor_qrcode, logout, s
+from .auth import pwinput, login, create_user, delete_user, two_factor_qrcode, logout, s
+from .two_factor_auth import remove_tfa
 
 
 def start_screen_handler():

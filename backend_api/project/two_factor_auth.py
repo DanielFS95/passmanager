@@ -115,36 +115,6 @@ def tfa_login():
         return jsonify({"error": "There was an error!"}), 500
 
 
-# Used when the user chooses to remove the 2FA through account settings.
-@tfa_bp.route("/account/delete", methods=["POST"])
-@limiter.limit("25/hour")
-def tfa_account_deletion():
-    data = request.get_json()
-    username = data.get("username")
-    tfa_code = data.get("tfa_code")
-    session_token = request.cookies.get("session_token")
-    if not session_token:
-        return jsonify({"error": "Unauthorized"}), 401
-    user_id = get_user_id_with_session_token(session_token)
-    if not check_session(session_token, user_id):
-        return jsonify({"timeout": "Session timeout!"}), 440
-
-    if validate_tfa(tfa_code, username, user_id):
-        try:
-            with pool.get_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute("DELETE FROM user_info WHERE user_id = %s", (user_id,))
-                    cursor.execute("DELETE FROM pm_users WHERE user_id = %s", (user_id,))
-                    cursor.execute("DELETE FROM sessions WHERE user_id = %s", (user_id,))
-                    conn.commit()
-                    session.clear()
-                    response = jsonify({"delete_complete": "delete_complete"}), 200
-                    response.set_cookie("session_token", "", expires=0)
-                    return response
-        except mariadb.Error as e:
-            return jsonify({"error": str(e)}), 500
-
-
 # Checks if the user has 2-Factor enabled
 def tfa_check(username, user_id):
     try:

@@ -1,10 +1,9 @@
 from flask import Flask, current_app
 import os
-from .project.two_factor_auth import tfa_bp
-from .project.user import user_bp
-from .project.auth import auth_bp
-
-from .project.common import limiter
+from project.two_factor_auth import tfa_bp
+from project.user import user_bp
+from project.auth import auth_bp
+from project.common import limiter
 
 
 app = Flask(__name__)

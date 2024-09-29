@@ -1,12 +1,8 @@
 import requests
 import pwinput
 from password_validator import PasswordValidator
-from .common import console, clear_screen
+from .common import console, clear_screen, s, logged_in_username
 from .two_factor_auth import two_factor_qrcode
-
-s = requests.Session()
-
-logged_in_username = None
 
 validatepass = PasswordValidator()
 validatepass\

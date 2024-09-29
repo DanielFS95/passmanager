@@ -3,9 +3,9 @@ import mariadb
 from datetime import timedelta, datetime
 import ulid
 import secrets
-from common import limiter, validatepass, pool
-from auth_tools import hash_pass, store_session, check_pass, get_user_id_with_username
-from two_factor_auth import tfa_check
+from project.common import limiter, validatepass, pool
+from project.auth_tools import hash_pass, store_session, check_pass, get_user_id_with_username
+from project.two_factor_auth import tfa_check
 
 auth_bp = Blueprint('account', __name__)
 

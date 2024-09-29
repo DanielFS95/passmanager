@@ -1,0 +1,14 @@
+mariadb
+flask
+flask_mysqldb
+python-dotenv
+doppler-sdk
+pycryptodome
+ulid-py
+bcrypt
+pytz
+arrow
+password-validator
+pyotp
+qrcode
+Flask-Limiter

@@ -3,7 +3,7 @@ import os
 from project.two_factor_auth import tfa_bp
 from project.user import user_bp
 from project.auth import auth_bp
-from project.common import limiter
+from project.common import init_limiter
 
 
 app = Flask(__name__)
@@ -12,9 +12,8 @@ app.config["SECRET_KEY"] = os.urandom(24)
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+init_limiter(app)
 
-with app.app_context():
-    limiter = limiter()
 
 app.register_blueprint(user_bp, url_prefix='/user')
 app.register_blueprint(tfa_bp, url_prefix='/tfa')

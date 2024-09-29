@@ -14,10 +14,13 @@ doppler.set_access_token(os.getenv("DOPPLER_TOKEN"))
 
 limiter = Limiter(
     key_func=get_remote_address,
-    app=current_app,
     default_limits=["500 per day", "60 per hour"],
     strategy="fixed-window"
 )
+
+
+def init_limiter(app):
+    limiter.init_app(app)
 
 
 validatepass = PasswordValidator()

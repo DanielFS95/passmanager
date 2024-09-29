@@ -6,8 +6,8 @@ import secrets
 import pyotp
 import qrcode
 from io import StringIO
-from .common import pool, get_doppler_secrets, limiter
-from .auth_tools import get_user_id_with_username, get_user_id_with_session_token, check_session, store_session, pass_decrypt, pass_encrypt
+from common import pool, get_doppler_secrets, limiter
+from auth_tools import get_user_id_with_username, get_user_id_with_session_token, check_session, store_session, pass_decrypt, pass_encrypt
 
 
 tfa_bp = Blueprint('tfa', __name__)

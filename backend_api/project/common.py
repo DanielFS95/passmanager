@@ -4,6 +4,7 @@ import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
+import logging
 from dopplersdk import DopplerSDK
 
 load_dotenv()
@@ -46,12 +47,26 @@ pool = None
 def get_connection_pool():
     global pool
     if pool is None:
+        logging.debug("Initializing MariaDB connection pool...")
+        user = get_doppler_secrets("MARIADB_USER")
+        password = get_doppler_secrets("MARIADB_PASS")
+        host = get_doppler_secrets("MARIADB_HOST")
+        port = int(get_doppler_secrets("MARIADB_PORT"))
+        database = get_doppler_secrets("MARIADB_DATABASE")
+        
+        # Log the retrieved secrets to ensure they are not None
+        logging.debug(f"User: {user}, Host: {host}, Port: {port}, Database: {database}")
+
+        if not all([user, password, host, database]):
+            raise ValueError("Failed to retrieve database credentials from Doppler")
+
         pool = mariadb.ConnectionPool(
-            user=get_doppler_secrets("MARIADB_USER"),
-            password=get_doppler_secrets("MARIADB_PASS"),
-            host=get_doppler_secrets("MARIADB_HOST"),
-            port=int(get_doppler_secrets("MARIADB_PORT")),
-            database=get_doppler_secrets("MARIADB_DATABASE"),
+            user=user,
+            password=password,
+            host=host,
+            port=port,
+            database=database,
             pool_name="mypool",
-            pool_size=5,)
+            pool_size=5
+        )
     return pool

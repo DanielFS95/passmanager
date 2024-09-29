@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import logging
 from dopplersdk import DopplerSDK
 
+
+logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 doppler = DopplerSDK()
 doppler.set_access_token(os.getenv("DOPPLER_TOKEN"))
@@ -53,7 +55,7 @@ def get_connection_pool():
         host = get_doppler_secrets("MARIADB_HOST")
         port = int(get_doppler_secrets("MARIADB_PORT"))
         database = get_doppler_secrets("MARIADB_DATABASE")
-        
+
         # Log the retrieved secrets to ensure they are not None
         logging.debug(f"User: {user}, Host: {host}, Port: {port}, Database: {database}")
 

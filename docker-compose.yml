@@ -72,7 +72,8 @@ services:
       - mariadb_cnf:/etc/mysql/
 
   api:
-    image: danielfs95/danielfsdocker:latest
+    build:
+      context: backend_api/Dockerfile
     container_name: api
     restart: always
     expose:

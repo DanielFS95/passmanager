@@ -1,4 +1,4 @@
-FROM python:3.8-slim
+FROM python:3.10-slim
 
 RUN apt-get update && \
     apt-get install -y \
@@ -16,4 +16,4 @@ RUN python -m pip install -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["python", "DBAPI.py"]
+CMD ["python", "main_api.py"]

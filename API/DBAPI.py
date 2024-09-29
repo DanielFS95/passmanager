@@ -33,7 +33,7 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 # Initializes the rate limiter. Checks client IP. Currently not set properly for testing purpose
 limiter = Limiter(
     key_func=get_remote_address, app=app, default_limits=["500 per day", "60 per hour"], strategy="fixed-window"
-    )
+)
 
 # Validation of passwords. This is done on both client and server-side.
 validatepass = PasswordValidator()
@@ -187,7 +187,7 @@ def store_session(session_token, user_id, expires_at, username):
                 cursor.execute(
                     "INSERT INTO sessions (session_token, user_id, expires_at, username)"
                     "VALUES(%s, %s, %s, %s)", (session_token, user_id, expires_at, username)
-                    )
+                )
                 conn.commit()
                 return True
     except mariadb.Error as e:
@@ -202,7 +202,7 @@ def check_session(session_token, user_id):
                 cursor.execute(
                     "SELECT expires_at FROM sessions WHERE session_token = %s"
                     "AND user_id = %s", (session_token, user_id)
-                    )
+                )
                 result = cursor.fetchone()
                 current_time = arrow.utcnow()
                 user_expiration_from_db = result[0]
@@ -224,7 +224,7 @@ def update_session(session_token, user_id):
                 cursor.execute(
                     "UPDATE sessions SET expires_at = %s WHERE session_token = %s"
                     "AND user_id = %s", (current_time, session_token, user_id)
-                    )
+                )
                 conn.commit()
     except mariadb.Error as e:
         return jsonify({"error": str(e)}), 500
@@ -273,7 +273,7 @@ def verify_tfa():
                     cursor.execute(
                         "UPDATE pm_users SET tfa_key = %s WHERE user_id = %s"
                         "AND username = %s", (key, user_id, username),
-                        )
+                    )
                     conn.commit()
         except mariadb.Error as e:
             return jsonify({"error": str(e)})
@@ -303,7 +303,7 @@ def remove_tfa():
                     cursor.execute(
                         "UPDATE pm_users SET tfa_key = NULL"
                         "WHERE user_id = %s AND username = %s", (user_id, username)
-                        )
+                    )
                     conn.commit()
         except mariadb.Error as e:
             return jsonify({"error": str(e)})
@@ -332,7 +332,7 @@ def user_register():
                 cursor.execute(
                     "INSERT INTO pm_users (user_id, password, username)"
                     "VALUES (%s, %s, %s)", (id, hashed_pass, username)
-                    )
+                )
                 conn.commit()
                 return jsonify({"Account_created": True}), 200
     except mariadb.Error as e:
@@ -453,7 +453,7 @@ def add_service():
                     cursor.execute(
                         "INSERT INTO user_info (ulid, user_id, service, password, username)"
                         "VALUES (%s, %s, %s, %s, %s)", (id, user_id, service, encrypt_pass, username)
-                        )
+                    )
                     conn.commit()
                     return (jsonify({"status": "Din account blev tilføjet successfuldt!"}), 200)
 
@@ -565,7 +565,7 @@ def password_retriever():
                 cursor.execute(
                     "SELECT username, password FROM user_info WHERE service = %s"
                     "AND username = %s AND user_id = %s", (service, username, user_id)
-                    )
+                )
                 retrieved_info = cursor.fetchone()
 
                 if retrieved_info:
@@ -602,9 +602,7 @@ def password_retriever2():
     try:
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT username, password FROM user_info WHERE service = %s AND user_id = %s", (service, user_id)
-                    )
+                cursor.execute("SELECT username, password FROM user_info WHERE service = %s AND user_id = %s", (service, user_id))
                 retrieved_info = cursor.fetchone()
 
                 if retrieved_info:
@@ -700,7 +698,7 @@ def showlist():
             with conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT service, username FROM user_info WHERE user_id = %s ORDER BY service, username", (user_id,)
-                    )
+                )
                 retrieved_info = cursor.fetchall()
                 services_dict = {}
                 for service, username in retrieved_info:

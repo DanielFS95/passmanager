@@ -254,7 +254,7 @@ def showlist():
                 for service, username in retrieved_info:
                     if service not in services_dict:
                         services_dict[service] = []
-                    services_dict[service].user_append(username)
+                    services_dict[service].append(username)
                 return jsonify({"services": services_dict}), 200
 
     except mariadb.Error as e:

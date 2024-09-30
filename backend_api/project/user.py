@@ -27,15 +27,9 @@ def add_service():
         return jsonify({"error": "Der er ingen data at hente"}), 400
     update_session(session_token, user_id)
     try:
-        if "already_exist" in data:
-            userinfo = data["already_exist"]
-            service = userinfo.get("service")
-            username = userinfo.get("username")
-            password = userinfo.get("password")
-        else:
-            service = data.get("service")
-            username = data.get("username")
-            password = data.get("password")
+        service = data.get("service")
+        username = data.get("username")
+        password = data.get("password")
 
         id = ulid.new().str
 

@@ -17,3 +17,6 @@ Everything is setup in Docker, and uses Traefik as a Reverse Proxy to gain a TLS
 - Rate Limiter
 - Use of a Secrets Manager (Doppler)
 - Automatic update of API with short downtime (Uses watchtower + Github Actions to achieve this)
+- Traefik Reverse Proxy (Lets Encrypt Auto TLS Cert for HTTPS)
+- MariaDB database for storage
+- Isolated in a Docker environment (Docker-Compose)

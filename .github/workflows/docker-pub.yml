@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build the Docker image
-        run: docker build ./API --file ./API/Dockerfile --tag danielfs95/danielfsdocker:latest
+        run: docker build ./backend_api --file ./backend_api/Dockerfile --tag danielfs95/danielfsdocker:latest
 
       - name: Push the Docker image
         run: docker push danielfs95/danielfsdocker:latest

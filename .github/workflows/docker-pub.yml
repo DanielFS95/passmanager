@@ -4,13 +4,15 @@ on:
   push:
     branches: [ "master" ]
     paths: 
-      - API/DBAPI.py
-      - API/Dockerfile
+      - backend_api/main_api.py
+      - backend_api/project/**
+      - backend_api/Dockerfile
   pull_request:
     branches: [ "master" ]
     paths: 
-      - API/DBAPI.py
-      - API/Dockerfile
+      - backend_api/main_api.py
+      - backend_api/project/**
+      - backend_api/Dockerfile
   workflow_dispatch:
       
 jobs:

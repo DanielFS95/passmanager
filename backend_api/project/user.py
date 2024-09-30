@@ -233,7 +233,7 @@ def tfa_account_deletion():
 
 
 # Is used to provide a list of the services a specific has stored in the manager already.
-@user_bp.route("/user/services/servicelist", methods=["GET"])
+@user_bp.route("/services/servicelist", methods=["GET"])
 @limiter.limit("1000/hour")
 def showlist():
     session_token = request.cookies.get("session_token")

@@ -31,7 +31,7 @@ def add_service():
         username = data.get("username")
         password = data.get("password")
 
-        id = ulid.new().str()
+        id = ulid.new().str
 
         if not all([service, username, password, id]):
             return (jsonify({"error": "Der mangler en eller flere af de påkrævede felter"}), 406)

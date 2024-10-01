@@ -193,7 +193,7 @@ def add_service():
                             console.print(f"\n[yellow]Der er allerede gemt et password for [white underline]{username}[/white underline] ved servicen [white underline]{service}[/white underline][/yellow]\n")
                             choice = input("Ønsker du at overskrive det tidligere gemte password?(j/n): ")
                             if choice == "j":
-                                userinfo = {"already_exist": {"service": service, "username": username, "password": password}}
+                                userinfo = {"already_exist": True, "service": service, "username": username, "password": password}
                             else:
                                 console.print("[red]Dit password blev ikke ændret![/red]")
                                 return False

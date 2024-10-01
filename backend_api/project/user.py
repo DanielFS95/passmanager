@@ -41,7 +41,7 @@ def add_service():
 
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:
-                if "already_exist" in data:
+                if data.get("already_exist"):
                     cursor.execute(
                         "UPDATE user_info SET password = %s WHERE username = %s"
                         "AND service = %s AND user_id = %s", (encrypt_pass, username, service, user_id))

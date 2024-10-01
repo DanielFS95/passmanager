@@ -43,8 +43,9 @@ def add_service():
             with conn.cursor() as cursor:
                 if data.get("already_exist"):
                     cursor.execute(
-                        "UPDATE user_info SET password = %s WHERE username = %s"
-                        "AND service = %s AND user_id = %s", (encrypt_pass, username, service, user_id))
+                        "UPDATE user_info SET password = %s WHERE username = %s "
+                        "AND service = %s AND user_id = %s", (encrypt_pass, username, service, user_id)
+                    )
                     conn.commit()
                     return (jsonify({"pass_overwritten": "completed"})), 200
                 else:

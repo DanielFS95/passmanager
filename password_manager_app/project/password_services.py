@@ -216,6 +216,7 @@ def add_service():
     elif r.json().get("timeout"):
         print("\n")
         console.print("[underline yellow italic] Din session er udløbet! Log ind igen![/underline yellow italic]")
-
+    else:
         console.print("[bold bright_red]Der skete en fejl![/bold bright_red]")
+        print(r.json())
         return False

@@ -5,7 +5,10 @@ import base64
 from flask import jsonify
 from Crypto.Cipher import AES
 import bcrypt
-from project.common import get_connection_pool
+from project.common import get_connection_pool, get_doppler_secrets
+import pyhibp
+from pyhibp import pwnedpasswords as pw
+import hashlib
 
 pool = get_connection_pool()
 
@@ -137,3 +140,11 @@ def update_session(session_token, user_id):
                 conn.commit()
     except mariadb.Error as e:
         return jsonify({"error": str(e)}), 500
+
+
+def hibp_password_leak(encryption_key, password):
+    decrypted_pass = pass_decrypt(encryption_key, password)
+    pyhibp.set_user_agent(ua="Daniels Password Manager")
+    hashed_pass = hashlib.sha1(decrypted_pass.encode()).hexdigest()
+    response = pw.is_password_breached(password=hashed_pass)
+    return response

@@ -3,7 +3,7 @@ import mariadb
 from flask import request, jsonify, session
 import ulid
 from project.common import limiter, get_connection_pool, get_doppler_secrets
-from project.auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt
+from project.auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt, hibp_password_leak
 from project.two_factor_auth import tfa_check, validate_tfa
 
 
@@ -30,7 +30,6 @@ def add_service():
         service = data.get("service")
         username = data.get("username")
         password = data.get("password")
-
         id = ulid.new().str
 
         if not all([service, username, password, id]):
@@ -38,6 +37,7 @@ def add_service():
 
         encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
         encrypt_pass = pass_encrypt(encryption_key, password)
+        password_leak_amount = hibp_password_leak(encryption_key, password)
 
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:

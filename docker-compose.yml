@@ -12,6 +12,7 @@ services:
       - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
       - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.portainer.middlewares=my-geoblock@docker"
     volumes:
       - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -95,6 +96,7 @@ services:
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
       - "traefik.http.services.api.loadbalancer.server.port=8000"
       - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.api.middlewares=my-geoblock@docker"
 
   watchtower:
     image: containrrr/watchtower

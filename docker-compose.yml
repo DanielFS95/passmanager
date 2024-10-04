@@ -49,9 +49,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
       - ./data/acme.json:/letsencrypt/acme.json
-      - /traefikdata/traefik.yml:/etc/traefik/traefik.yml
-      - /traefikdata/dynamic-configuration.yml:/etc/traefik/dynamic-configuration.yml
-      - /traefikdata/traefik/plugin/geoblock:/plugins-local/src/github.com/PascalMinder/geoblock/
+      - ./traefikdata/traefik.yml:/etc/traefik/traefik.yml
+      - ./traefikdata/dynamic-configuration.yml:/etc/traefik/dynamic-configuration.yml
+      - ./traefikdata/traefik/plugin/geoblock:/plugins-local/src/github.com/PascalMinder/geoblock/
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.dfsprojekt.dk`)"

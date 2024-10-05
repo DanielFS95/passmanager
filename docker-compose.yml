@@ -39,6 +39,8 @@ services:
       - "--entrypoints.websecure.http.tls.certResolver=letsencrypt"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--providers.file.directory=/configuration"
+      - "--providers.file.watch=true"
 
     environment:
       - SIMPLY_API_KEY=${SIMPLY_API_KEY}
@@ -50,8 +52,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
       - ./data/acme.json:/letsencrypt/acme.json
-      - ./docker/config/traefik/traefik.yml:/etc/traefik/traefik.yml
-      - ./docker/config/traefik/dynamic-config.yml:/etc/traefik/dynamic-config.yml
+      - traefik-config:/configuration
+
 
     labels:
       - "traefik.enable=true"
@@ -119,3 +121,4 @@ volumes:
   portainer_data:
   mariadb_data:
   mariadb_cnf:
+  traefik-config:

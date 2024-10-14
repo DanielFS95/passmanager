@@ -20,9 +20,11 @@ def list_services():
     if "services" in servicelist:
         table_data = []
         for service, accounts in servicelist["services"].items():
-            for account in accounts:
-                table_data.append([service, account])
-        table = tabulate(table_data, headers=["Service", "Username/Account"], tablefmt="grid")
+            for account_info in accounts:
+                account = account_info["username"]
+                password_leak_amount = ["password_leak_amount"]
+                table_data.append([service, account, password_leak_amount])
+        table = tabulate(table_data, headers=["Service", "Username/Account", "Password Leak Count"], tablefmt="grid")
         console.print("\n[bold]Du har passwords for følgende services:[/bold]")
         print(table)
 
@@ -65,7 +67,8 @@ def remove_pass():
     if len(accounts) > 1:
         print("\n")
         console.print(f"[italic]Der blev fundet {len(accounts)} accounts fra servicen[/italic] [underline]{service_choice}[/underline]:")
-        for account in accounts:
+        for account_info in accounts:
+            account = account_info["username"]
             console.print(f"[bold]{account}[/bold]")
         chosen_account = input(f"Hvilken account ønsker du at fjerne fra {service_choice}?: ")
 
@@ -122,7 +125,8 @@ def retrieve_password():
     accounts = servicelist["services"][service_choice]
     if len(accounts) > 1:
         console.print(f"\n[italic]Der blev fundet {len(accounts)} accounts fra servicen[/italic] [underline]{service_choice}[/underline]:")
-        for account in accounts:
+        for account_info in accounts:
+            account = account_info["username"]
             console.print(f"[bold]{account}[/bold]")
         chosen_account = input("\nHvilken account ønsker du at se password for?: ")
         userinfo = {"service": service_choice, "account": chosen_account}
@@ -141,6 +145,8 @@ def retrieve_password():
         if "username" and "password" in jsondata:
             username = jsondata["username"]
             password = jsondata["password"]
+            if "password_leak_amount" in jsondata:
+                password_leak_amount = jsondata["password_leak_amount"]
 
             console.print(f"\n\n[bold]Username/Email:[/bold] [underline]{username}[/underline]")
             console.print(f"[bold]Password:[/bold] [underline]{password}[/underline]")
@@ -187,7 +193,8 @@ def add_service():
             for saved_service, accounts in servicelist["services"].items():
                 if service.lower() == saved_service.lower():
                     service_found = True
-                    for account in accounts:
+                    for account_info in accounts:
+                        account = account_info["username"]
                         if username.lower() == account.lower():
                             account_found = True
                             console.print(f"\n[yellow]Der er allerede gemt et password for [white underline]{username}[/white underline] ved servicen [white underline]{service}[/white underline][/yellow]\n")

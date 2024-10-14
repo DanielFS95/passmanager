@@ -142,20 +142,21 @@ def password_retriever():
             with conn.cursor() as cursor:
                 if username:
                     cursor.execute(
-                        "SELECT username, password FROM user_info WHERE service = %s"
+                        "SELECT username, password, password_leak_amount FROM user_info WHERE service = %s"
                         "AND username = %s AND user_id = %s", (service, username, user_id)
                     )
 
                 else:
-                    cursor.execute("SELECT username, password FROM user_info WHERE service = %s AND user_id = %s", (service, user_id))
+                    cursor.execute("SELECT username, password, password_leak_amount FROM user_info WHERE service = %s AND user_id = %s", (service, user_id))
 
                 retrieved_info = cursor.fetchone()
 
                 if retrieved_info:
-                    username, encrypted_password = retrieved_info
+                    username, encrypted_password, password_leak_amount = retrieved_info
                     encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
                     decrypted_password = pass_decrypt(encryption_key, encrypted_password)
-
+                    if password_leak_amount is not None:
+                        return (jsonify({"username": username, "password": decrypted_password, "password_leak_amount": password_leak_amount}), 200)
                     return (jsonify({"username": username, "password": decrypted_password}), 200)
                 else:
                     return (jsonify({"error": "Service-navnet blev ikke fundet."}), 404)
@@ -242,14 +243,18 @@ def showlist():
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT service, username FROM user_info WHERE user_id = %s ORDER BY service, username", (user_id,)
+                    "SELECT service, username, password_leak_amount FROM user_info WHERE user_id = %s ORDER BY service, username", (user_id,)
                 )
                 retrieved_info = cursor.fetchall()
                 services_dict = {}
-                for service, username in retrieved_info:
+                for service, username, password_leak_amount in retrieved_info:
                     if service not in services_dict:
                         services_dict[service] = []
-                    services_dict[service].append(username)
+                    services_dict[service].append({
+                        "username": username,
+                        "password_leak_amount":password_leak_amount
+                    })                   
+
                 return jsonify({"services": services_dict}), 200
 
     except mariadb.Error as e:

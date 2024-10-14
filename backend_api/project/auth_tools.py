@@ -6,9 +6,8 @@ from flask import jsonify
 from Crypto.Cipher import AES
 import bcrypt
 from project.common import get_connection_pool, get_doppler_secrets
-import pyhibp
-from pyhibp import pwnedpasswords as pw
 import hashlib
+import requests
 
 pool = get_connection_pool()
 
@@ -142,9 +141,12 @@ def update_session(session_token, user_id):
         return jsonify({"error": str(e)}), 500
 
 
-def hibp_password_leak(encryption_key, password):
-    decrypted_pass = pass_decrypt(encryption_key, password)
-    pyhibp.set_user_agent(ua="Daniels Password Manager")
-    hashed_pass = hashlib.sha1(decrypted_pass.encode()).hexdigest()
-    response = pw.is_password_breached(password=hashed_pass)
-    return response
+def hibp_password_leak(password):
+    sha1_pass = hashlib.sha1(password.encode("utf-8")).hexdigest().upper
+    password_first5 = sha1_pass[:5]
+    password_remainder = sha1_pass[5:]
+    r = requests.get("https://api.pwnedpasswords.com/range/" + password_first5)
+    for line in r.text.splitlines():
+        line_remainder, leak_count = line.split(":")
+        if line_remainder == password_remainder:
+            return int(leak_count)

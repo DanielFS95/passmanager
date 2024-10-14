@@ -37,21 +37,21 @@ def add_service():
 
         encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
         encrypt_pass = pass_encrypt(encryption_key, password)
-        password_leak_amount = hibp_password_leak(encryption_key, password)
+        password_leak_amount = hibp_password_leak(password)
 
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 if data.get("already_exist"):
                     cursor.execute(
-                        "UPDATE user_info SET password = %s WHERE username = %s "
-                        "AND service = %s AND user_id = %s", (encrypt_pass, username, service, user_id)
+                        "UPDATE user_info SET password = %s AND password_leak_amount = %s WHERE username = %s "
+                        "AND service = %s AND user_id = %s", (encrypt_pass, password_leak_amount, username, service, user_id)
                     )
                     conn.commit()
                     return (jsonify({"pass_overwritten": "completed"})), 200
                 else:
                     cursor.execute(
-                        "INSERT INTO user_info (ulid, user_id, service, password, username)"
-                        "VALUES (%s, %s, %s, %s, %s)", (id, user_id, service, encrypt_pass, username)
+                        "INSERT INTO user_info (ulid, user_id,password_leak_amount, service, password, username)"
+                        "VALUES (%s, %s, %s, %s, %s)", (id, user_id, password_leak_amount, service, encrypt_pass, username)
                     )
                     conn.commit()
                     return (jsonify({"status": "Din account blev tilføjet successfuldt!"}), 200)

@@ -150,6 +150,9 @@ def retrieve_password():
 
             console.print(f"\n\n[bold]Username/Email:[/bold] [underline]{username}[/underline]")
             console.print(f"[bold]Password:[/bold] [underline]{password}[/underline]")
+            if password_leak_amount > 0:
+                console.print(f"[bold bright_red]PASSWORD LEAK ANTAL: {password_leak_amount}")
+                console.print("[bold bright_red]DIT PASSWORD BLEV FUNDET I ET DATALEAK! DU BØR ÆNDRE DIT PASSWORD HURTIGST MULIGT![/bold bright_red]")
             print("\n\n")
             return True
     except s.exceptions.JSONDecodeError as e:

@@ -252,8 +252,8 @@ def showlist():
                         services_dict[service] = []
                     services_dict[service].append({
                         "username": username,
-                        "password_leak_amount":password_leak_amount
-                    })                   
+                        "password_leak_amount": password_leak_amount
+                    })
 
                 return jsonify({"services": services_dict}), 200
 

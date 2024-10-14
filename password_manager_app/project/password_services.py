@@ -147,6 +147,8 @@ def retrieve_password():
             password = jsondata["password"]
             if "password_leak_amount" in jsondata:
                 password_leak_amount = jsondata["password_leak_amount"]
+            else:
+                password_leak_amount = 0
 
             console.print(f"\n\n[bold]Username/Email:[/bold] [underline]{username}[/underline]")
             console.print(f"[bold]Password:[/bold] [underline]{password}[/underline]")

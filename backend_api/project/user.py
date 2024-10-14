@@ -50,7 +50,7 @@ def add_service():
                     return (jsonify({"pass_overwritten": "completed"})), 200
                 else:
                     cursor.execute(
-                        "INSERT INTO user_info (ulid, user_id,password_leak_amount, service, password, username)"
+                        "INSERT INTO user_info (ulid, user_id, password_leak_amount, service, password, username)"
                         "VALUES (%s, %s, %s, %s, %s)", (id, user_id, password_leak_amount, service, encrypt_pass, username)
                     )
                     conn.commit()

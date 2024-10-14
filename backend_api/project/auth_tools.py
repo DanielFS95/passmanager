@@ -5,7 +5,7 @@ import base64
 from flask import jsonify
 from Crypto.Cipher import AES
 import bcrypt
-from project.common import get_connection_pool, get_doppler_secrets
+from project.common import get_connection_pool
 import hashlib
 import requests
 
@@ -142,7 +142,7 @@ def update_session(session_token, user_id):
 
 
 def hibp_password_leak(password):
-    sha1_pass = hashlib.sha1(password.encode("utf-8")).hexdigest().upper
+    sha1_pass = hashlib.sha1(password.encode("utf-8")).hexdigest().upper()
     password_first5 = sha1_pass[:5]
     password_remainder = sha1_pass[5:]
     r = requests.get("https://api.pwnedpasswords.com/range/" + password_first5)

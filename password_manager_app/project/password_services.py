@@ -22,7 +22,9 @@ def list_services():
         for service, accounts in servicelist["services"].items():
             for account_info in accounts:
                 account = account_info["username"]
-                password_leak_amount = ["password_leak_amount"]
+                password_leak_amount = account_info["password_leak_amount"]
+                if password_leak_amount is None:
+                    password_leak_amount = 0
                 table_data.append([service, account, password_leak_amount])
         table = tabulate(table_data, headers=["Service", "Username/Account", "Password Leak Count"], tablefmt="grid")
         console.print("\n[bold]Du har passwords for følgende services:[/bold]")

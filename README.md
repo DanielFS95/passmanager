@@ -20,3 +20,4 @@ Everything is setup in Docker, and uses Traefik as a Reverse Proxy to gain a TLS
 - Traefik Reverse Proxy (Lets Encrypt Auto TLS Cert for HTTPS, Geoblocking middleware)
 - MariaDB database for storage
 - Isolated in a Docker environment (Docker-Compose)
+- Checking leak amount for passwords using the HIBP API

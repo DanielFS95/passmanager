@@ -243,7 +243,7 @@ def showlist():
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT service, username, password_leak_amount FROM user_info WHERE user_id = %s ORDER BY service, username", (user_id,)
+                    "SELECT service, username, password_leak_amount FROM user_info WHERE user_id = %s ORDER BY service, username, password_leak_amount", (user_id,)
                 )
                 retrieved_info = cursor.fetchall()
                 services_dict = {}

@@ -43,7 +43,7 @@ def add_service():
             with conn.cursor() as cursor:
                 if data.get("already_exist"):
                     cursor.execute(
-                        "UPDATE user_info SET password = %s AND password_leak_amount = %s WHERE username = %s "
+                        "UPDATE user_info SET password = %s, password_leak_amount = %s WHERE username = %s "
                         "AND service = %s AND user_id = %s", (encrypt_pass, password_leak_amount, username, service, user_id)
                     )
                     conn.commit()
@@ -51,7 +51,7 @@ def add_service():
                 else:
                     cursor.execute(
                         "INSERT INTO user_info (ulid, user_id, password_leak_amount, service, password, username)"
-                        "VALUES (%s, %s, %s, %s, %s)", (id, user_id, password_leak_amount, service, encrypt_pass, username)
+                        "VALUES (%s, %s, %s, %s, %s, %s)", (id, user_id, password_leak_amount, service, encrypt_pass, username)
                     )
                     conn.commit()
                     return (jsonify({"status": "Din account blev tilføjet successfuldt!"}), 200)

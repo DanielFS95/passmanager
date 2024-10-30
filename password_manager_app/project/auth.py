@@ -145,7 +145,7 @@ def check_if_session():
 
 
 def logout():
-    if check_if_session is False:
+    if check_if_session() is False:
         console.print("[bold bright_red]Du skal være logget ind først![/bold bright_red]")
         return False
     try:

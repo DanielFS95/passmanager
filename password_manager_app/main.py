@@ -22,7 +22,7 @@ logged_in_actions = {
 if __name__ == "__main__":
     logged_in = False
     while True:
-        if check_if_session() is False:
+        if not s.cookies:
             choice = start_screen_handler()
             action = options_start_screen.get(choice)
 

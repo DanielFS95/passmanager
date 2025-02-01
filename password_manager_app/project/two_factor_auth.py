@@ -7,7 +7,7 @@ def remove_tfa(username):
         clear_screen()
         return
     headers = {"Content-Type": "application/json"}
-    jsondata = {"tfa_code": tfa_code}
+    jsondata = {"username": username, "tfa_code": tfa_code}
     r = s.delete("https://api.dfsprojekt.dk/tfa/remove", json=jsondata, headers=headers)
     if r.status_code == 200 and r.json().get("tfa_removed"):
         clear_screen()

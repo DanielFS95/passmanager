@@ -1,14 +1,11 @@
-from .common import console, clear_screen, s, logged_in_username
+from .common import console, clear_screen, s
 
-
-def remove_tfa():
-    global logged_in_username
+def remove_tfa(username):
     console.print("[underline] Skriv \"b\" for at fortryde og vende tilbage til menuen [/underline]\n")
     tfa_code = input("Indtast din 2FA Kode: ")
     if tfa_code == "b":
         clear_screen()
         return
-    username = logged_in_username
     headers = {"Content-Type": "application/json"}
     jsondata = {"username": username, "tfa_code": tfa_code}
     r = s.delete("https://api.dfsprojekt.dk/tfa/remove", json=jsondata, headers=headers)
@@ -20,14 +17,13 @@ def remove_tfa():
         console.print("[bold bright_red]Der opstod et problem, og 2FA blev ikke fjernet fra din account[/bold bright_red]")
 
 
-def two_factor_qrcode(username=None):
-    global logged_in_username
-    username = username or logged_in_username
+def two_factor_qrcode(username):
     jsondata = {"username": username}
     headers = {"Content-Type": "application/json"}
     r = s.post("https://api.dfsprojekt.dk/tfa/generate", json=jsondata, headers=headers)
     data = r.json().get("qr_code_succes")
     print(data)
+    print(username)
     if r.status_code == 200 and r.json().get("qr_code_succes"):
         while True:
             tfa_code = input("Indtast en 2FA-Kode for at forsætte: ")
@@ -35,6 +31,7 @@ def two_factor_qrcode(username=None):
             jsondata = {"tfa_code": tfa_code}
             r = s.post("https://api.dfsprojekt.dk/tfa/verify", json=jsondata, headers=headers)
             if r.status_code == 200 and r.json().get("tfa_complete"):
+                console.print("[Bold green]2FA er nu tilføjet til din konto![/Bold green]")
                 return False
             elif r.status_code == 200 and r.json().get("error"):
                 console.print("Der var et problem!")

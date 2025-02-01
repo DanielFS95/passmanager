@@ -1,7 +1,7 @@
 import requests
 import pwinput
 from password_validator import PasswordValidator
-from .common import console, clear_screen, s, logged_in_username
+from .common import console, clear_screen, s
 from .two_factor_auth import two_factor_qrcode
 
 validatepass = PasswordValidator()
@@ -101,8 +101,7 @@ def create_user():
             return False
 
 
-def delete_user():
-    global logged_in_username
+def delete_user(username):
     while True:
         last_choice = input("Er du helt sikker på at du vil slette din account og alle dets data? Du kan ikke fortryde denne handling efter den er udført!(j/n): ")
         if last_choice == "n":
@@ -118,7 +117,6 @@ def delete_user():
 
     console.print("[underline]For at kunne slette din account skal du bekræfte med Password og 2FA (Såfremt 2FA er aktivt)[/underline]")
     password = pwinput.pwinput("Indtast dit password: ")
-    username = logged_in_username
     headers = {"Content-Type": "application/json"}
     jsondata = {"username": username, "password": password}
     r = s.post("https://api.dfsprojekt.dk/user/accountdelete", json=jsondata, headers=headers)

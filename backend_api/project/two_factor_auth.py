@@ -75,7 +75,7 @@ def remove_tfa():
     user_id = get_user_id_with_session_token(session_token)
     if not check_session(session_token, user_id):
         return jsonify({"timeout": "Session timeout!"}), 440
-    username = data.get("username")
+    username = request.cookies.get("username")
     tfa_code = data.get("tfa_code")
     valid_tfa = validate_tfa(tfa_code, username, user_id)
     if valid_tfa is True:
@@ -83,9 +83,8 @@ def remove_tfa():
             with pool.get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        "UPDATE pm_users SET tfa_key = NULL"
-                        "WHERE user_id = %s AND username = %s", (user_id, username)
-                    )
+                        "UPDATE pm_users SET tfa_key = NULL WHERE user_id = %s AND username = %s", (user_id, username)
+                        )
                     conn.commit()
         except mariadb.Error as e:
             return jsonify({"error": str(e)})

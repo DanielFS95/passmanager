@@ -120,17 +120,20 @@ def account_settings_handler():
         account_settings_choice = account_settings_menu()
         if account_settings_choice == "1":
             clear_screen()
-            two_factor_qrcode()
+            username = s.cookies.get("username")
+            two_factor_qrcode(username)
             break
 
         elif account_settings_choice == "2":
             clear_screen()
-            remove_tfa()
+            username = s.cookies.get("username")
+            remove_tfa(username)
             break
 
         elif account_settings_choice == "3":
             clear_screen()
-            delete_user()
+            username = s.cookies.get("username")
+            delete_user("username")
             break
 
         elif account_settings_choice == "b":

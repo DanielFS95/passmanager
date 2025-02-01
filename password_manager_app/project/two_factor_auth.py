@@ -7,7 +7,7 @@ def remove_tfa(username):
         clear_screen()
         return
     headers = {"Content-Type": "application/json"}
-    jsondata = {"username": username, "tfa_code": tfa_code}
+    jsondata = {"tfa_code": tfa_code}
     r = s.delete("https://api.dfsprojekt.dk/tfa/remove", json=jsondata, headers=headers)
     if r.status_code == 200 and r.json().get("tfa_removed"):
         clear_screen()
@@ -23,7 +23,6 @@ def two_factor_qrcode(username):
     r = s.post("https://api.dfsprojekt.dk/tfa/generate", json=jsondata, headers=headers)
     data = r.json().get("qr_code_succes")
     print(data)
-    print(username)
     if r.status_code == 200 and r.json().get("qr_code_succes"):
         while True:
             tfa_code = input("Indtast en 2FA-Kode for at forsætte: ")

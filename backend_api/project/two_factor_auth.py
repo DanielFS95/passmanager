@@ -80,7 +80,7 @@ def remove_tfa():
     user_id = get_user_id_with_session_token(session_token)
     if not check_session(session_token, user_id):
         return jsonify({"timeout": "Session timeout!"}), 440
-    username = request.cookies.get("username")
+    username = session.cookies.get("username")
     print(username)
     logging.debug(username)
     tfa_code = data.get("tfa_code")

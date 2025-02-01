@@ -36,7 +36,7 @@ def two_factor_qrcode(username=None):
             r = s.post("https://api.dfsprojekt.dk/tfa/verify", json=jsondata, headers=headers)
             if r.status_code == 200 and r.json().get("tfa_complete"):
                 return False
-            elif r.status_code == 200 and r.json.get("error"):
+            elif r.status_code == 200 and r.json().get("error"):
                 console.print("Der var et problem!")
                 return True
             elif tfa_code == "b":

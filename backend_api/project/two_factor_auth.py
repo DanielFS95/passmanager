@@ -54,8 +54,7 @@ def verify_tfa():
             with pool.get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        "UPDATE pm_users SET tfa_key = %s WHERE user_id = %s"
-                        "AND username = %s", (key, user_id, username),
+                        "UPDATE pm_users SET tfa_key = %s WHERE user_id = %s AND username = %s", (key, user_id, username),
                     )
                     conn.commit()
         except mariadb.Error as e:

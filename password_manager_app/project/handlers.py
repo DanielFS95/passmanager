@@ -1,9 +1,11 @@
 import msvcrt
+from project import common
 from .common import console, clear_screen
 from .password_services import list_services, retrieve_password, add_service, remove_pass
-from .auth import pwinput, login, create_user, delete_user, two_factor_qrcode, logout, s
+from .auth import pwinput, login, create_user, delete_user, two_factor_qrcode, logout
 from .two_factor_auth import remove_tfa
 
+logged_in_username = None
 
 def start_screen_handler():
     console.print("[bold yellow]Velkommen til Daniel's Password Manager![/bold yellow]")
@@ -48,7 +50,7 @@ def user_login_handler():
         clear_screen()
         if logged_in:
             console.print(f"[bold bright_green]Du er nu logget ind som bruger:[/bold bright_green] [bold underline bright_green]{username}[/bold underline bright_green]")
-            return username
+            return
         else:
             console.print("[bold bright_red]Login mislykkedes![/bold bright_red]")
 
@@ -102,7 +104,7 @@ def remove_password_handler():
 
 
 def account_settings_menu():
-    username = s.cookies.get("username")
+    username = common.logged_in_username
     console.print(f"[underline]Account indstillinger for {username}:[/underline]")
     console.print("[italic]Skriv \"b\" i enten username eller password feltet for at afbryde oprettelsen[/italic]")
     print("\n")
@@ -120,20 +122,18 @@ def account_settings_handler():
         account_settings_choice = account_settings_menu()
         if account_settings_choice == "1":
             clear_screen()
-            username = s.cookies.get("username")
-            two_factor_qrcode(username)
+            two_factor_qrcode()
             break
 
         elif account_settings_choice == "2":
             clear_screen()
-            username = s.cookies.get("username")
-            remove_tfa(username)
+            remove_tfa()
+            print()
             break
 
         elif account_settings_choice == "3":
             clear_screen()
-            username = s.cookies.get("username")
-            delete_user("username")
+            delete_user()
             break
 
         elif account_settings_choice == "b":

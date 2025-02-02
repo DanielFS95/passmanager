@@ -1,5 +1,6 @@
 from project.auth import check_if_session
 from project.handlers import *
+from project.common import s
 
 
 options_start_screen = {

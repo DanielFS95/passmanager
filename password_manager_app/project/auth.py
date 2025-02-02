@@ -1,5 +1,6 @@
 import requests
 import pwinput
+from project import common
 from password_validator import PasswordValidator
 from .common import console, clear_screen, s
 from .two_factor_auth import two_factor_qrcode
@@ -14,14 +15,13 @@ validatepass\
 
 
 def login(username, password):
-    global logged_in_username
     login_info = {"username": username, "password": password}
     r = s.post("https://api.dfsprojekt.dk/account/login", json=login_info, headers={"Content-Type": "application/json"})
 
     if r.status_code == 200 and r.json().get("success"):
         print("Du er nu logget på!")
-        logged_in_username = username
-        return True
+        common.logged_in_username = username
+        return True, common.logged_in_username
     elif r.status_code == 200 and r.json().get("get_tfa_code"):
         username = r.json().get("username")
         tfa_code = input("Indtast din 2FA Kode: ")
@@ -29,8 +29,8 @@ def login(username, password):
         r = s.post("https://api.dfsprojekt.dk/tfa/check-tfa", json=jsondata, headers={"Content-Type": "application/json"})
         if r.status_code == 200 and r.json().get("tfa-success"):
             print("Succes! du er nu logget på!")
-            logged_in_username = username
-            return True
+            common.logged_in_username = username
+            return True, common.logged_in_username
 
     print("Dit login fejlede!")
     return False
@@ -85,7 +85,8 @@ def create_user():
             print("\n")
             user_tfa_choice = input("Ønsker du at tilføje 2FA til din account? (j/n): ")
             if user_tfa_choice.lower() == "j":
-                if two_factor_qrcode(username):
+                common.logged_in_username = username
+                if two_factor_qrcode():
                     console.print("[bold bright_red]Der opstod et problem med 2FA opsætning. Prøv igen senere.[/bold bright_red]")
                     return False
                 else:

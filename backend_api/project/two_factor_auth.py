@@ -5,8 +5,6 @@ from flask import request, jsonify, session
 import secrets
 import pyotp
 import qrcode
-import logging
-import sys
 from io import StringIO
 from project.common import get_connection_pool, get_doppler_secrets, limiter
 from project.auth_tools import get_user_id_with_username, get_user_id_with_session_token, check_session, store_session, pass_decrypt, pass_encrypt

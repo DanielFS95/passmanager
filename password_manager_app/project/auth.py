@@ -30,7 +30,7 @@ def login(username, password):
         if r.status_code == 200 and r.json().get("tfa-success"):
             print("Succes! du er nu logget på!")
             common.logged_in_username = username
-            return True, common.logged_in_username
+            return True
 
     print("Dit login fejlede!")
     return False

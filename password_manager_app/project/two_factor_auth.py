@@ -12,10 +12,10 @@ def remove_tfa():
     jsondata = {"username": username, "tfa_code": tfa_code}
     r = s.delete("https://api.dfsprojekt.dk/tfa/remove", json=jsondata, headers=headers)
     if r.status_code == 200 and r.json().get("tfa_removed"):
-        #clear_screen()
+        clear_screen()
         console.print("[bold bright_green]2FA blev fjernet succesfuldt![/bold bright_green]")
     else:
-        #clear_screen()
+        clear_screen()
         console.print("[bold bright_red]Der opstod et problem, og 2FA blev ikke fjernet fra din account[/bold bright_red]")
 
 

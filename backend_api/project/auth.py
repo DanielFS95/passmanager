@@ -63,8 +63,7 @@ def user_login():
             response = jsonify({"success": "Login succesfuldt!"})
             response.set_cookie("session_token", session_token)
             response.set_cookie("username", username)
-            logged_in_username = username
-            return response, logged_in_username, 200
+            return response, 200
 
     else:
         return (jsonify({"error": "The username or password provided is incorrect"}), 401)

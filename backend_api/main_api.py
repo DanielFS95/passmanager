@@ -1,4 +1,4 @@
-from flask import Flask, current_app
+from flask import Flask
 import os
 from project.two_factor_auth import tfa_bp
 from project.user import user_bp

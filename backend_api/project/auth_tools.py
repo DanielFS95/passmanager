@@ -2,7 +2,6 @@ import mariadb
 import arrow
 from datetime import timedelta, datetime
 import base64
-from flask import jsonify
 from Crypto.Cipher import AES
 import bcrypt
 from project.common import get_connection_pool
@@ -70,8 +69,8 @@ def get_user_id_with_username(username):
 
                 ulid = get_ulid[0]
                 return ulid
-    except mariadb.Error as e:
-        return (e), 500
+    except mariadb.Error:
+        return False
 
 
 # Provides a different way to obtain user_id. Useful when functions doesn't have a username to get user_id with.
@@ -86,8 +85,8 @@ def get_user_id_with_session_token(session_token):
                     return result[0]
                 else:
                     return None
-    except mariadb.Error as e:
-        return jsonify({"error": str(e)}), 500
+    except mariadb.Error:
+        return False
 
 
 # Stores the session in the database
@@ -101,8 +100,8 @@ def store_session(session_token, user_id, expires_at, username):
                 )
                 conn.commit()
                 return True
-    except mariadb.Error as e:
-        return jsonify({"error": str(e)}), 500
+    except mariadb.Error:
+        return False
 
 
 # Checks if the session for a user has expired.
@@ -122,8 +121,8 @@ def check_session(session_token, user_id):
                     return False
                 else:
                     return True
-    except mariadb.Error as e:
-        return jsonify({"error": str(e)}), 500
+    except mariadb.Error:
+        return False
 
 
 # Updates the expiration date of a already created session.
@@ -137,10 +136,10 @@ def update_session(session_token, user_id):
                     "AND user_id = %s", (current_time, session_token, user_id)
                 )
                 conn.commit()
-    except mariadb.Error as e:
-        return jsonify({"error": str(e)}), 500
+    except mariadb.Error:
+        return False
 
-
+# Checks if a password is found in a leak, using the HIBP API.
 def hibp_password_leak(password):
     sha1_pass = hashlib.sha1(password.encode("utf-8")).hexdigest().upper()
     password_first5 = sha1_pass[:5]

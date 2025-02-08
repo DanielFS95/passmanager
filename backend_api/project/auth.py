@@ -16,7 +16,7 @@ pool = get_connection_pool()
 @limiter.limit("100/hour")
 def user_register():
     data = request.get_json()
-    username = data.get("username")
+    username = data.get("username", "").strip().lower()
     password = data.get("password")
     id = ulid.new().str
     if not all([username, password, id]):
@@ -28,14 +28,15 @@ def user_register():
     try:
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:
+                cursor.execute("SELECT 1 FROM pm_users WHERE username = %s", (username,))
+                if cursor.execute():
+                    return jsonify({"error": "Username is already taken"}), 409
                 cursor.execute(
-                    "INSERT INTO pm_users (user_id, password, username)"
-                    "VALUES (%s, %s, %s)", (id, hashed_pass, username)
-                )
+                    "INSERT INTO pm_users (user_id, password, username) VALUES (%s, %s, %s)", (id, hashed_pass, username))
                 conn.commit()
                 return jsonify({"Account_created": True}), 200
-    except mariadb.Error as e:
-        return jsonify({"error": str(e)}), 500
+    except mariadb.Error:
+        return jsonify({"error": "Internal Server Error"}), 500
 
 
 # Used for userlogin
@@ -80,7 +81,7 @@ def user_logout():
                 cursor.execute("DELETE FROM sessions WHERE session_token = %s", (session_token,))
                 conn.commit()
     except mariadb.Error:
-        return jsonify({"error": "internal error"}), 500
+        return jsonify({"error": "Internal Server Error"}), 500
 
     session.pop("user_id", None)
     return jsonify({"status": "Logged out successfully"}), 200

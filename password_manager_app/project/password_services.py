@@ -159,8 +159,8 @@ def retrieve_password():
                 console.print("[bold bright_red]DIT PASSWORD BLEV FUNDET I ET DATALEAK! DU BØR ÆNDRE DIT PASSWORD HURTIGST MULIGT![/bold bright_red]")
             print("\n\n")
             return True
-    except s.exceptions.JSONDecodeError as e:
-        print("Der opstod en JSONDecode fejl:", e)
+    except s.exceptions.JSONDecodeError:
+        print("Der opstod en fejl")
     return False
 
 
@@ -191,8 +191,8 @@ def add_service():
         try:
             r = s.get("https://api.dfsprojekt.dk/user/services/servicelist")
             r.raise_for_status()
-        except requests.RequestException as e:
-            print({e})
+        except requests.RequestException:
+            print("Der opstod en fejl!")
             return False
 
         servicelist = r.json()

@@ -57,7 +57,7 @@ def verify_tfa():
                     )
                     conn.commit()
         except mariadb.Error as e:
-            return jsonify({"error": str(e)})
+            return jsonify({"error": "Internal Server Error"}), 500
         store_secret_key.pop(username, None)
         return jsonify({"tfa_complete": "succes"}), 200
     else:
@@ -86,10 +86,10 @@ def remove_tfa():
                         )
                     conn.commit()
         except mariadb.Error as e:
-            return jsonify({"error": str(e)})
+            return jsonify({"error": "Internal Server Error"}), 500
         return jsonify({"tfa_removed": "succes"}), 200
     else:
-        return jsonify({"error": "There was an issue removing tfa!"}), 500
+        return jsonify({"error": "Internal Server Error"}), 500
 
 
 # Checks the user provided tfa-key when user is trying to login.
@@ -110,7 +110,7 @@ def tfa_login():
         response.set_cookie("session_token", session_token)
         return response, 200
     else:
-        return jsonify({"error": "There was an error!"}), 500
+        return jsonify({"error": "Internal Server Error"}), 500
 
 
 # Checks if the user has 2-Factor enabled

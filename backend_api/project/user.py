@@ -1,5 +1,6 @@
 from flask import Blueprint
 import mariadb
+import time
 from flask import request, jsonify, session
 import ulid
 from project.common import limiter, get_connection_pool, get_doppler_secrets
@@ -24,7 +25,7 @@ def add_service():
         return jsonify({"timeout": "Session timeout!"}), 440
     data = request.get_json()
     if not data:
-        return jsonify({"error": "Der er ingen data at hente"}), 403
+        return jsonify({"error":"data error"}), 403
     update_session(session_token, user_id)
     try:
         service = data.get("service")
@@ -56,8 +57,8 @@ def add_service():
                     conn.commit()
                     return (jsonify({"status": "Din account blev tilføjet successfuldt!"}), 200)
 
-    except mariadb.Error as e:
-        return jsonify({"error": f"Der opstod en fejl: {str(e)}"}), 500
+    except mariadb.Error:
+        return jsonify({"error": "Internal Server Error"}), 500
 
 
 # Used when the service is listed only once. Deletes using only service and user_id.
@@ -94,28 +95,29 @@ def remove_service():
                     return jsonify({"error": "Service-navnet findes ikke!"}), 404
 
                 conn.commit()
-                return (jsonify({"status": "Succes! Dine oplysninger blev slettet!"}), 200,)
+                return (jsonify({"status": "data-deletion succes"}), 200,)
 
     except mariadb.Error as e:
-        return jsonify({"error": f"Der opstod en fejl: {str(e)}"}), 500
+        return jsonify({"error": "Internal Server Error"}), 500
 
 
 # Checks if a username is already in the database. Makes sure that each user that is created is unique.
 @user_bp.route("/username/availability", methods=["GET"])
 @limiter.limit("100/hour")
 def check_username():
-    data = request.get_json()
-    username = data.get("username")
+    username = request.args.get("username").strip().lower()
+    if not username:
+        return jsonify({"error":"Missing username"}), 400
     try:
         with pool.get_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute("SELECT username FROM pm_users WHERE username = %s", (username,))
-                if cursor.fetchone():
-                    return jsonify({"available": False}), 200
+                cursor.execute("SELECT 1 FROM pm_users WHERE username = %s", (username,))
+                if cursor.fetchone() is None:
+                    return jsonify({"available": True}), 200
                 else:
-                    return jsonify({"available": True}), 500
+                    return jsonify({"available": False}), 409
     except mariadb.Error as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal Server Error"}), 500
 
 
 # Retrieves password when the service is only listed once. Retrieves using only service and user_id.
@@ -162,7 +164,7 @@ def password_retriever():
                     return (jsonify({"error": "Service-navnet blev ikke fundet."}), 404)
 
     except mariadb.Error:
-        return jsonify({"error": "database error"}), 500
+        return jsonify({"error": "Internal Server Error"}), 500
 
 
 # Used to delete an account completely along with all its data.
@@ -196,7 +198,7 @@ def delete_account():
                     response.set_cookie("session_token", "", expires=0)
                     return response
         except mariadb.Error as e:
-            return jsonify({"error": str(e)}), 500
+            return jsonify({"error": "Internal Server Error"}), 500
 
 
 @user_bp.route("/account/delete", methods=["POST"])
@@ -225,7 +227,7 @@ def tfa_account_deletion():
                     response.set_cookie("session_token", "", expires=0)
                     return response
         except mariadb.Error as e:
-            return jsonify({"error": str(e)}), 500
+            return jsonify({"error": "Internal Server Error"}), 500
 
 
 # Is used to provide a list of the services a specific has stored in the manager already.
@@ -258,4 +260,4 @@ def showlist():
                 return jsonify({"services": services_dict}), 200
 
     except mariadb.Error as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal Server Error"}), 500

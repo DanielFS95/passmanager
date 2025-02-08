@@ -74,8 +74,8 @@ def create_user():
         try:
             r = s.put("https://api.dfsprojekt.dk/account/register", json=userinfo, headers=headers)
             r.raise_for_status()  # Ensure the request was successful
-        except requests.RequestException as e:
-            console.print(f"[bold bright_red]Der opstod en fejl ved oprettelsen af din konto: {e}[/bold bright_red]")
+        except requests.RequestException:
+            console.print(f"[bold bright_red]Der opstod en fejl ved oprettelsen af din konto[/bold bright_red]")
             return False
 
         # Check if the account was created successfully
@@ -152,12 +152,12 @@ def logout():
         if r.status_code == 200:
             print("Du blev logget ud!")
             s.cookies.clear()
-    except requests.RequestException as e:
-        print(f"Der opstod en fejl: {e}")
+    except requests.RequestException:
+        print(f"Der opstod en fejl")
 
 
 def check_username(username):
     headers = {"Content-Type": "application/json"}
-    jsondata = {"username": username}
-    t = s.get("https://api.dfsprojekt.dk/user/username/availability", json=jsondata, headers=headers)
+    params = {"username": username}
+    t = s.get("https://api.dfsprojekt.dk/user/username/availability", params=params, headers=headers)
     return t.json().get("available", False)

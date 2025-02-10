@@ -77,7 +77,10 @@ def create_user():
         except requests.RequestException:
             console.print(f"[bold bright_red]Der opstod en fejl ved oprettelsen af din konto[/bold bright_red]")
             return False
-
+        
+        if r.json().get("username_error"):
+            print("Brugernavnet er taget!")
+            
         # Check if the account was created successfully
         if r.json().get("Account_created", False):
             clear_screen()

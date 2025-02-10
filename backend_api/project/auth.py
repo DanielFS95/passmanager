@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 import ulid
 import secrets
 from project.common import limiter, validatepass, get_connection_pool
-from project.auth_tools import hash_pass, store_session, check_pass, get_user_id_with_username
+from project.auth_tools import hash_pass, store_session, check_pass, get_user_id_with_username, UsernameValidation
 from project.two_factor_auth import tfa_check
 
 auth_bp = Blueprint('account', __name__)
@@ -17,6 +17,8 @@ pool = get_connection_pool()
 def user_register():
     data = request.get_json()
     username = data.get("username", "").strip().lower()
+    if UsernameValidation(username) is not True:
+        return jsonify({"invalid_username": "invalid username"}), 409
     password = data.get("password")
     id = ulid.new().str
     if not all([username, password, id]):
@@ -30,7 +32,7 @@ def user_register():
             with conn.cursor() as cursor:
                 cursor.execute("SELECT 1 FROM pm_users WHERE username = %s", (username,))
                 if cursor.execute():
-                    return jsonify({"error": "Username is already taken"}), 409
+                    return jsonify({"username_error": "Username is already taken"}), 409
                 cursor.execute(
                     "INSERT INTO pm_users (user_id, password, username) VALUES (%s, %s, %s)", (id, hashed_pass, username))
                 conn.commit()

@@ -12,8 +12,8 @@ def list_services():
     try:
         r = s.get("https://api.dfsprojekt.dk/user/services/servicelist")
         r.raise_for_status()
-    except requests.RequestException as e:
-        print({e})
+    except requests.RequestException:
+        print("Der opstod en fejl. Prøv igen senere.")
         return False
 
     servicelist = r.json()
@@ -39,8 +39,8 @@ def remove_pass():
     try:
         r = s.get("https://api.dfsprojekt.dk/user/services/servicelist")
         r.raise_for_status()
-    except requests.RequestException as e:
-        print({e})
+    except requests.RequestException:
+        print("Der opstod en fejl. Prøv igen senere.")
         return False
 
     servicelist = r.json()
@@ -87,8 +87,8 @@ def remove_pass():
             console.print("[bold bright_green]Dine oplysninger blev slettet succesfuldt![/bold bright_green]")
             return True
 
-    except requests.RequestException as e:
-        print(f"Der opstod en fejl: {e}")
+    except requests.RequestException:
+        print("Der opstod en fejl. Prøv igen senere.")
         return False
 
 
@@ -100,8 +100,8 @@ def retrieve_password():
     try:
         r = s.get("https://api.dfsprojekt.dk/user/services/servicelist")
         r.raise_for_status()
-    except requests.RequestException as e:
-        print({e})
+    except requests.RequestException:
+        print("Der opstod et problem! Prøv igen senere!")
         return False
 
     servicelist = r.json()
@@ -138,8 +138,8 @@ def retrieve_password():
     try:
         headers = {"Content-Type": "application/json"}
         r = s.get("https://api.dfsprojekt.dk/user/services/retrieve", json=userinfo, headers=headers)
-    except requests.RequestException as e:
-        print({e})
+    except requests.RequestException:
+        print("Der opstod en fejl. Prøv igen senere.")
         return False
 
     try:
@@ -160,7 +160,7 @@ def retrieve_password():
             print("\n\n")
             return True
     except s.exceptions.JSONDecodeError:
-        print("Der opstod en fejl")
+        print("Der opstod en fejl. Prøv igen senere.")
     return False
 
 
@@ -224,13 +224,15 @@ def add_service():
         print("\n")
         console.print(f"[bold bright_green]Success! Dit password til [/bold bright_green][underline]{service}[/underline][bold bright_green] for [/bold bright_green][underline]{username}[/underline] [bold bright_green]blev tilføjet til Password Manageren![/bold bright_green]")
         return True
+    
     elif r.json().get("pass_overwritten", False):
         print("\n")
         console.print(f"[bold bright_green]Success! Dit password til accounten [white underline]{username}[/white underline] for servicen [white underline]{service}[/white underline] blev opdateret![/bold bright_green]")
+    
     elif r.json().get("timeout"):
         print("\n")
         console.print("[underline yellow italic] Din session er udløbet! Log ind igen![/underline yellow italic]")
+    
     else:
         console.print("[bold bright_red]Der skete en fejl![/bold bright_red]")
-        print(r.json())
         return False

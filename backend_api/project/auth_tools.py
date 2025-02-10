@@ -7,6 +7,7 @@ import bcrypt
 from project.common import get_connection_pool
 import hashlib
 import requests
+import re
 
 pool = get_connection_pool()
 
@@ -149,3 +150,26 @@ def hibp_password_leak(password):
         line_remainder, leak_count = line.split(":")
         if line_remainder == password_remainder:
             return int(leak_count)
+
+def UsernameValidation(username):
+    # username is between 4 and 25 characters
+    if len(username) < 4 or len(username) > 25 :
+        return False
+    
+    if re.search(r'\s', username):
+        return False
+    
+    if not username[-1].isalnum():
+        return False
+
+    if re.search(r'_{2,}|-{2,}|@{2,}', username):
+        return False
+    
+    # contains only letters, numbers and underscore
+    valid_grammar = set('abcdefghijklmnopqrstuvwxyz0123456789_-@')
+
+    for ch in username:
+        if ch.lower() not in valid_grammar:
+            return False
+
+    return True

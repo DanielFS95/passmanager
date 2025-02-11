@@ -1,5 +1,6 @@
 from flask import Blueprint
 import mariadb
+import logging
 import json
 import os
 from flask import request, jsonify, session
@@ -256,7 +257,9 @@ def showlist():
     cache_check = f"userid:{user_id}:services"
     cached_services = redis_client.get(cache_check)
     if cached_services:
+        logging.debug(f"✅ Cache hit: Retrieved data for user {user_id} from Redis")
         return jsonify({"services": json.loads(cached_services)}), 200
+    logging.debug(f"Cache miss: Querying MariaDB for user {user_id}")
 
 
     try:
@@ -277,6 +280,7 @@ def showlist():
 
 
                 redis_client.setex(cache_check, 600, json.dumps(services_dict))
+                logging.debug(f"Data stored in Redis cache for user {user_id}")
 
 
                 return jsonify({"services": services_dict}), 200

@@ -2,7 +2,7 @@ import requests
 import pwinput
 from project import common
 from password_validator import PasswordValidator
-from .common import console, clear_screen, s
+from .common import console, clear_screen, s, UsernameValidation
 from .two_factor_auth import two_factor_qrcode
 
 validatepass = PasswordValidator()
@@ -19,7 +19,7 @@ def login(username, password):
     r = s.post("https://api.dfsprojekt.dk/account/login", json=login_info, headers={"Content-Type": "application/json"})
 
     if r.status_code == 200 and r.json().get("success"):
-        print("Du er nu logget på!")
+        console.print("[bold green]Succes! du er nu logget på![/bold green]")
         common.logged_in_username = username
         return True, common.logged_in_username
     elif r.status_code == 200 and r.json().get("get_tfa_code"):
@@ -28,11 +28,11 @@ def login(username, password):
         jsondata = {"tfa_code": tfa_code, "username": username}
         r = s.post("https://api.dfsprojekt.dk/tfa/check-tfa", json=jsondata, headers={"Content-Type": "application/json"})
         if r.status_code == 200 and r.json().get("tfa-success"):
-            print("Succes! du er nu logget på!")
+            console.print("[bold green]Succes! du er nu logget på![/bold green]")
             common.logged_in_username = username
             return True
 
-    print("Dit login fejlede!")
+    console.print("[bold red]Dit login fejlede![/bold red]")
     return False
 
 
@@ -42,6 +42,9 @@ def create_user():
         if username == "b":
             clear_screen()
             return True
+
+        if not UsernameValidation(username):
+            continue
 
         # Check if the username is available
         if not check_username(username):
@@ -79,7 +82,7 @@ def create_user():
             return False
         
         if r.json().get("username_error"):
-            print("Brugernavnet er taget!")
+            console.print("[bold red]Brugernavnet er taget![/bold red]")
             
         # Check if the account was created successfully
         if r.json().get("Account_created", False):
@@ -94,7 +97,7 @@ def create_user():
                     return False
                 else:
                     clear_screen()
-                    print(f"2FA blev tilføjet for {username}!")
+                    console.print(f"[bold green]2FA blev tilføjet for {username}![/bold green]")
             else:
                 clear_screen()
                 console.print("[italic]2FA blev fravalgt. Du kan altid tilføje det under dine account indstillinger.[/italic]")

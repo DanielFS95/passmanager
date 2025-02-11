@@ -1,9 +1,9 @@
 from flask import Blueprint
 import mariadb
-import time
+import os
 from flask import request, jsonify, session
 import ulid
-from project.common import limiter, get_connection_pool, get_doppler_secrets
+from project.common import limiter, get_connection_pool
 from project.auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt, hibp_password_leak
 from project.two_factor_auth import tfa_check, validate_tfa
 
@@ -36,7 +36,7 @@ def add_service():
         if not all([service, username, password, id]):
             return (jsonify({"error": "Der mangler en eller flere af de påkrævede felter"}), 406)
 
-        encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
+        encryption_key = bytes.fromhex(os.getenv("ENCRYPTION_KEY"))
         encrypt_pass = pass_encrypt(encryption_key, password)
         password_leak_amount = hibp_password_leak(password)
 
@@ -155,7 +155,7 @@ def password_retriever():
 
                 if retrieved_info:
                     username, encrypted_password, password_leak_amount = retrieved_info
-                    encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
+                    encryption_key = bytes.fromhex(os.getenv("ENCRYPTION_KEY"))
                     decrypted_password = pass_decrypt(encryption_key, encrypted_password)
                     if password_leak_amount is not None:
                         return (jsonify({"username": username, "password": decrypted_password, "password_leak_amount": password_leak_amount}), 200)

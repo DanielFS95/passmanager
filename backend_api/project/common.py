@@ -36,11 +36,11 @@ validatepass\
 
 
 # Retrieving doppler secrets
-def get_doppler_secrets(secret_name):
-    secrets = doppler.secrets.get(project="docker", config="dev", name=secret_name)
-    values = secrets.value
-    if isinstance(values, dict):
-        return values.get("raw")
+#def get_doppler_secrets(secret_name):
+    #secrets = doppler.secrets.get(project="docker", config="dev", name=secret_name)
+    #values = secrets.value
+    #if isinstance(values, dict):
+        #return values.get("raw")
 
 
 pool = None
@@ -56,11 +56,11 @@ def get_connection_pool():
                 try:
                     logging.debug("Attempting to initialize MariaDB connection pool...")
                     pool = mariadb.ConnectionPool(
-                        user=get_doppler_secrets("MARIADB_USER"),
-                        password=get_doppler_secrets("MARIADB_PASS"),
-                        host=get_doppler_secrets("MARIADB_HOST"),
-                        port=int(get_doppler_secrets("MARIADB_PORT")),
-                        database=get_doppler_secrets("MARIADB_DATABASE"),
+                        user=os.getenv("$MARIADB_USER"),
+                        password=os.getenv("MARIADB_PASS"),
+                        host=os.getenv("MARIADB_HOST"),
+                        port=int(os.getenv("MARIADB_PORT")),
+                        database=os.getenv("MARIADB_DATABASE"),
                         pool_name="mypool",
                         pool_size=5
                     )

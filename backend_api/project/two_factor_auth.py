@@ -5,8 +5,9 @@ from flask import request, jsonify, session
 import secrets
 import pyotp
 import qrcode
+import os
 from io import StringIO
-from project.common import get_connection_pool, get_doppler_secrets, limiter
+from project.common import get_connection_pool, limiter
 from project.auth_tools import get_user_id_with_username, get_user_id_with_session_token, check_session, store_session, pass_decrypt, pass_encrypt
 
 tfa_bp = Blueprint('tfa', __name__)
@@ -43,11 +44,15 @@ def verify_tfa():
     username = session.get("username")
     tfa_code = data.get("tfa_code")
     tfa_key = store_secret_key.get(username)
+
+    if not tfa_key:
+        return jsonify({"error":"Invalid 2FA code!"}), 401
+
     totp = pyotp.TOTP(tfa_key)
     session.pop("username", None)
     if totp.verify(tfa_code):
         user_id = get_user_id_with_username(username)
-        encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
+        encryption_key = bytes.fromhex(os.getenv("ENCRYPTION_KEY"))
         key = pass_encrypt(encryption_key, tfa_key)
         try:
             with pool.get_connection() as conn:
@@ -61,7 +66,7 @@ def verify_tfa():
         store_secret_key.pop(username, None)
         return jsonify({"tfa_complete": "succes"}), 200
     else:
-        return jsonify({"error": "Cant verify 2FA!"}), 500
+        return jsonify({"error": "Invalid 2FA code!"}), 401
 
 
 @tfa_bp.route("/remove", methods=["DELETE"])
@@ -137,7 +142,7 @@ def validate_tfa(tfa_code, username, user_id):
                 cursor.execute("SELECT tfa_key FROM pm_users WHERE username = %s AND user_id = %s", (username, user_id))
                 result = cursor.fetchone()
                 encrypted_tfa_key = result[0]
-                encryption_key = bytes.fromhex(get_doppler_secrets("ENCRYPTION_KEY"))
+                encryption_key = bytes.fromhex(os.getenv("ENCRYPTION_KEY"))
                 decrypted_key = pass_decrypt(encryption_key, encrypted_tfa_key)
                 totp = pyotp.TOTP(decrypted_key)
                 if totp.verify(tfa_code):

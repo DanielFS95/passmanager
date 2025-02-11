@@ -50,8 +50,6 @@ services:
       - SIMPLY_API_KEY=${SIMPLY_API_KEY}
       - SIMPLY_ACCOUNT_NAME=${SIMPLY_ACCOUNT_NAME}
       - EMAIL=${EMAIL}
-    env_file:
-      - .env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro
@@ -69,13 +67,11 @@ services:
     image: mariadb:latest
     container_name: mariadb
     restart: always
-    env_file:
-      - .env
     expose:
       - "3306"
     environment:
       MARIADB_USER: ${MARIADB_USER}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_PASSWORD: ${MARIADB_PASS}
       MARIADB_ALLOW_EMPTY_PASSWORD: "no"
     volumes:
       - mariadb_data:/var/lib/mysql
@@ -87,12 +83,11 @@ services:
     restart: always
     expose:
       - 8000
-    env_file:
-      - .env
     environment:
-      - DOPPLER_TOKEN=${DOPPLER_TOKEN}
+      #- DOPPLER_TOKEN=${DOPPLER_TOKEN}
       - DOCKER_USERNAME=${DOCKER_USER}
       - DOCKER_PASSWORD=${DOCKER_PASS}
+    command: doppler run -- docker-entrypoint.sh
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.dfsprojekt.dk`)"
@@ -106,8 +101,6 @@ services:
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
-    env_file:
-      - .env
     environment:
       - REPO_USER=${DOCKER_USER}
       - REPO_PASS=${DOCKER_PASS}

@@ -166,7 +166,7 @@ def UsernameValidation(username):
         return False
     
     # contains only letters, numbers and underscore
-    valid_grammar = set('abcdefghijklmnopqrstuvwxyz0123456789_-@')
+    valid_grammar = set('abcdefghijklmnopqrstuvwxyzæøå0123456789_-@')
 
     for ch in username:
         if ch.lower() not in valid_grammar:

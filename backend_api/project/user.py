@@ -62,8 +62,8 @@ def add_service():
 
         redis_client = redis_connection_pool()
         if redis_client:
-            cache_data = f"userid:{user_id}:services"
-            for key in redis_client.scan_iter(cache_data):
+            cache_key = f"{username}:{user_id}:services"
+            for key in redis_client.scan_iter(cache_key):
                 redis_client.delete(key)
 
         return jsonify(result_message), 200
@@ -255,8 +255,8 @@ def showlist():
     
 
     redis_client = redis_connection_pool()
-    cache_check = f"userid:{user_id}:services"
-    cached_services = redis_client.get(cache_check)
+    cache_key = f"{username}:{user_id}:services"
+    cached_services = redis_client.get(cache_key)
     if cached_services:
         logging.debug(f"Cache hit: Retrieved data for user {user_id} from Redis")
         return jsonify({"services": json.loads(cached_services)}), 200
@@ -280,7 +280,7 @@ def showlist():
                     })
 
 
-                redis_client.setex(cache_check, 600, json.dumps(services_dict))
+                redis_client.setex(cache_key, 600, json.dumps(services_dict))
                 logging.debug(f"Data stored in Redis cache for user {user_id}")
 
 

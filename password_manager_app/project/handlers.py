@@ -118,6 +118,7 @@ def account_settings_menu():
 
 
 def account_settings_handler():
+    username = common.logged_in_username
     clear_screen()
     while True:
         account_settings_choice = account_settings_menu()
@@ -134,7 +135,7 @@ def account_settings_handler():
 
         elif account_settings_choice == "3":
             clear_screen()
-            delete_user()
+            delete_user(username)
             break
 
         elif account_settings_choice == "b":

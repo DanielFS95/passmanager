@@ -12,3 +12,5 @@ password-validator
 pyotp
 qrcode
 Flask-Limiter
+redis
+json

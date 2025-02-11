@@ -26,7 +26,7 @@ def add_service():
         return jsonify({"timeout": "Session timeout!"}), 440
     data = request.get_json()
     if not data:
-        return jsonify({"error":"data error"}), 403
+        return jsonify({"error":"Data error"}), 403
     update_session(session_token, user_id)
     try:
         service = data.get("service")
@@ -64,7 +64,7 @@ def add_service():
             if delete_keys:
                 redis_client.delete(*delete_keys)
 
-        return (jsonify({"status": "Din account blev tilføjet successfuldt!"}), 200)
+        return (jsonify({"status": "Account added succesfully!"}), 200)
 
     except mariadb.Error:
         return jsonify({"error": "Internal Server Error"}), 500

@@ -35,7 +35,7 @@ def add_service():
         id = ulid.new().str
 
         if not all([service, username, password, id]):
-            return (jsonify({"error": "Der mangler en eller flere af de påkrævede felter"}), 406)
+            return (jsonify({"error": "Data error"}), 406)
 
         encryption_key = bytes.fromhex(os.getenv("ENCRYPTION_KEY"))
         encrypt_pass = pass_encrypt(encryption_key, password)

@@ -257,7 +257,7 @@ def showlist():
     cache_check = f"userid:{user_id}:services"
     cached_services = redis_client.get(cache_check)
     if cached_services:
-        logging.debug(f"✅ Cache hit: Retrieved data for user {user_id} from Redis")
+        logging.debug(f"Cache hit: Retrieved data for user {user_id} from Redis")
         return jsonify({"services": json.loads(cached_services)}), 200
     logging.debug(f"Cache miss: Querying MariaDB for user {user_id}")
 

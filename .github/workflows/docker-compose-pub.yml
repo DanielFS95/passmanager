@@ -1,0 +1,42 @@
+name: Deploy Docker Compose to Server
+
+on:
+  push:
+    branches: [ "master" ]  # Runs only on the master branch
+    paths:
+      - 'docker-compose.yml'  # Trigger only if docker-compose.yml is changed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: SSH to Server and Update Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          script: |
+            set -e  # Stop script on failure
+
+            echo "🔄 Switching to application directory..."
+            cd /home/danielfs/docker/
+
+            echo "🔄 Fetching only the updated docker-compose.yml..."
+            git fetch origin master 
+            git checkout origin/master -- docker-compose.yml  
+
+            echo "🛑 Stopping only Docker containers..."
+            doppler run -e production --command "docker-compose down" || true
+
+            echo "🚀 Rebuilding and starting only Docker containers..."
+            doppler run -e production --command "docker-compose up -d --build"
+
+            echo "🧹 Cleaning up unused Docker resources..."
+            docker system prune -a -f || true
+
+            echo "✅ Docker Compose update successful!"

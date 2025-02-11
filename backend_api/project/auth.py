@@ -31,7 +31,7 @@ def user_register():
         with mariadb_pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT 1 FROM pm_users WHERE username = %s", (username,))
-                if cursor.execute():
+                if cursor.fetchone():
                     return jsonify({"username_error": "Username is already taken"}), 409
                 cursor.execute(
                     "INSERT INTO pm_users (user_id, password, username) VALUES (%s, %s, %s)", (id, hashed_pass, username))

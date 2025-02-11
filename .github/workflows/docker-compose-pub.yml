@@ -31,10 +31,10 @@ jobs:
             git checkout origin/master -- docker-compose.yml  
 
             echo "🛑 Stopping only Docker containers..."
-            doppler run -e production --command "docker-compose down" || true
+            doppler run --config production --command "docker-compose down" || true
 
             echo "🚀 Rebuilding and starting only Docker containers..."
-            doppler run -e production --command "docker-compose up -d --build"
+            doppler run --config production --command "docker-compose up -d --build"
 
             echo "🧹 Cleaning up unused Docker resources..."
             docker system prune -a -f || true

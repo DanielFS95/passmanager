@@ -1,16 +1,17 @@
 from flask import Blueprint
 import mariadb
+import json
 import os
 from flask import request, jsonify, session
 import ulid
-from project.common import limiter, get_connection_pool
+from project.common import limiter, mariadb_connection_pool, redis_connection_pool
 from project.auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt, hibp_password_leak
 from project.two_factor_auth import tfa_check, validate_tfa
 
 
 user_bp = Blueprint('user', __name__)
 
-pool = get_connection_pool()
+mariadb_pool = mariadb_connection_pool()
 
 
 # Used for adding a new service to the password manager for a specfic account.
@@ -40,7 +41,7 @@ def add_service():
         encrypt_pass = pass_encrypt(encryption_key, password)
         password_leak_amount = hibp_password_leak(password)
 
-        with pool.get_connection() as conn:
+        with mariadb_pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 if data.get("already_exist"):
                     cursor.execute(
@@ -55,7 +56,15 @@ def add_service():
                         "VALUES (%s, %s, %s, %s, %s, %s)", (id, user_id, password_leak_amount, service, encrypt_pass, username)
                     )
                     conn.commit()
-                    return (jsonify({"status": "Din account blev tilføjet successfuldt!"}), 200)
+
+        redis_client = redis_connection_pool()
+        if redis_client:
+            cache_data = f"user:{user_id}:services:*"
+            delete_keys = redis_client.keys(cache_data)
+            if delete_keys:
+                redis_client.delete(*delete_keys)
+
+        return (jsonify({"status": "Din account blev tilføjet successfuldt!"}), 200)
 
     except mariadb.Error:
         return jsonify({"error": "Internal Server Error"}), 500
@@ -83,7 +92,7 @@ def remove_service():
         return (jsonify({"error": "Der mangler en eller flere af de påkrævede felter"}), 400)
 
     try:
-        with pool.get_connection() as conn:
+        with mariadb_pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 if username:
                     cursor.execute("DELETE FROM user_info WHERE service = %s AND username = %s AND user_id = %s", (service, username, user_id),)
@@ -109,7 +118,7 @@ def check_username():
     if not username:
         return jsonify({"error":"Missing username"}), 400
     try:
-        with pool.get_connection() as conn:
+        with mariadb_pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT 1 FROM pm_users WHERE username = %s", (username,))
                 if cursor.fetchone() is None:
@@ -138,9 +147,10 @@ def password_retriever():
 
     if not service:
         return (jsonify({"error": "Der mangler en eller flere af de påkrævede felter"}), 400)
+    
 
     try:
-        with pool.get_connection() as conn:
+        with mariadb_pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 if username:
                     cursor.execute(
@@ -187,7 +197,7 @@ def delete_account():
         return jsonify({"tfa_confirm": "tfa_confirm", "username": username}), 200
     else:
         try:
-            with pool.get_connection() as conn:
+            with mariadb_pool.get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("DELETE FROM user_info WHERE user_id = %s", (user_id,))
                     cursor.execute("DELETE FROM pm_users WHERE user_id = %s", (user_id,))
@@ -216,7 +226,7 @@ def tfa_account_deletion():
 
     if validate_tfa(tfa_code, username, user_id):
         try:
-            with pool.get_connection() as conn:
+            with mariadb_pool.get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("DELETE FROM user_info WHERE user_id = %s", (user_id,))
                     cursor.execute("DELETE FROM pm_users WHERE user_id = %s", (user_id,))
@@ -240,9 +250,17 @@ def showlist():
     user_id = get_user_id_with_session_token(session_token)
     if not check_session(session_token, user_id):
         return jsonify({"timeout": "Session timeout!"}), 440
+    
+
+    redis_client = redis_connection_pool()
+    cache_check = f"userid:{user_id}:services"
+    cached_services = redis_client.get(cache_check)
+    if cached_services:
+        return jsonify({"services": json.loads(cached_services)}), 200
+
 
     try:
-        with pool.get_connection() as conn:
+        with mariadb_pool.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT service, username, password_leak_amount FROM user_info WHERE user_id = %s ORDER BY service, username, password_leak_amount", (user_id,)
@@ -257,7 +275,12 @@ def showlist():
                         "password_leak_amount": password_leak_amount
                     })
 
+
+                redis_client.setex(cache_check, 600, json.dumps(services_dict))
+
+
                 return jsonify({"services": services_dict}), 200
+
 
     except mariadb.Error as e:
         return jsonify({"error": "Internal Server Error"}), 500

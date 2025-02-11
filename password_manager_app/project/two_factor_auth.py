@@ -32,12 +32,13 @@ def two_factor_qrcode():
             headers = {"Content-Type": "application/json"}
             jsondata = {"tfa_code": tfa_code}
             r = s.post("https://api.dfsprojekt.dk/tfa/verify", json=jsondata, headers=headers)
-            if r.status_code == 200 and r.json().get("tfa_complete"):
+            if tfa_code == "b":
+                clear_screen()
+                break
+            elif r.status_code == 200 and r.json().get("tfa_complete"):
                 console.print("[bold green]2FA er nu tilføjet til din konto![/bold green]")
                 return False
             elif r.status_code == 200 and r.json().get("error"):
                 console.print("Der var et problem!")
                 return True
-            elif tfa_code == "b":
-                break
         return True

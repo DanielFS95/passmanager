@@ -77,6 +77,17 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
       - mariadb_cnf:/etc/mysql/
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    expose: 
+      - "6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+  
 
   api:
     image: danielfs95/danielfsdocker:latest
@@ -92,6 +103,9 @@ services:
       - MARIADB_HOST=${MARIADB_HOST}
       - MARIADB_PORT=${MARIADB_PORT}
       - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - REDIS_PORT=6379
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.dfsprojekt.dk`)"
@@ -112,7 +126,7 @@ services:
       - WATCHTOWER_CLEANUP= true
       #- WATCHTOWER_SCHEDULE=0 0 * * * *
       - WATCHTOWER_DEBUG=true
-      - WATCHTOWER_POLL_INTERVAL=300
+      - WATCHTOWER_POLL_INTERVAL=300 
     volumes:
       - /home/danielfs/docker/config.json:/config.json
       - /var/run/docker.sock:/var/run/docker.sock

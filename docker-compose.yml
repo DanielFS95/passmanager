@@ -47,6 +47,7 @@ services:
 
 
     environment:
+      - DOPPLER_TOKEN
       - SIMPLY_API_KEY=${SIMPLY_API_KEY}
       - SIMPLY_ACCOUNT_NAME=${SIMPLY_ACCOUNT_NAME}
       - EMAIL=${EMAIL}
@@ -84,10 +85,8 @@ services:
     expose:
       - 8000
     environment:
-      ##S- DOPPLER_TOKEN=${DOPPLER_TOKEN}
       - DOCKER_USERNAME=${DOCKER_USER}
       - DOCKER_PASSWORD=${DOCKER_PASS}
-    command: doppler run -- docker-entrypoint.sh
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.dfsprojekt.dk`)"

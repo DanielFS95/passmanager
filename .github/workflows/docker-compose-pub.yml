@@ -24,10 +24,7 @@ jobs:
             set -e  # Stop script on failure
 
             echo "🔄 Switching to application directory..."
-            cd /home/danielfs/docker/
-
-            echo "✅ Marking this repository as safe..."
-            git config --global --add safe.directory /home/danielfs/docker
+            cd docker
 
             echo "🔄 Fetching only the updated docker-compose.yml..."
             git fetch origin master 

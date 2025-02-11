@@ -62,7 +62,7 @@ def add_service():
 
         redis_client = redis_connection_pool()
         if redis_client:
-            cache_data = f"userid:{user_id}:services:*"
+            cache_data = f"userid:{user_id}:services"
             for key in redis_client.scan_iter(cache_data):
                 redis_client.delete(key)
 

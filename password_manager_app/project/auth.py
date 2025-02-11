@@ -131,7 +131,7 @@ def delete_user(username):
         username = r.json().get("username")
         tfa_code = input("Indtast din 2FA Kode: ")
         jsondata = {"tfa_code": tfa_code, "username": username}
-        r = s.post("https://api.dfsprojekt.dk/user/account/delete", json=jsondata, headers=headers)
+        r = s.post("https://api.dfsprojekt.dk/user/accountdelete", json=jsondata, headers=headers)
         if r.status_code == 200 and r.json().get("delete_complete"):
             clear_screen()
             console.print("Din account og dets data blev slettet!")

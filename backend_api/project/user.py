@@ -98,15 +98,24 @@ def remove_service():
             with conn.cursor() as cursor:
                 if username:
                     cursor.execute("DELETE FROM user_info WHERE service = %s AND username = %s AND user_id = %s", (service, username, user_id),)
+                    result_message = {"status": "data-deletion succes"}
 
                 else:
                     cursor.execute("DELETE FROM user_info WHERE service = %s AND user_id = %s", (service, user_id),)
+                    result_message = {"status": "data-deletion succes"}
 
                 if cursor.rowcount == 0:
                     return jsonify({"error": "Service-navnet findes ikke!"}), 404
 
                 conn.commit()
-                return (jsonify({"status": "data-deletion succes"}), 200,)
+
+        redis_client = redis_connection_pool()
+        if redis_client:
+            cache_key = f"{user_id}:services"
+            for key in redis_client.scan_iter(cache_key):
+                redis_client.delete(key)
+
+                return jsonify(result_message), 200
 
     except mariadb.Error as e:
         return jsonify({"error": "Internal Server Error"}), 500
@@ -179,8 +188,72 @@ def password_retriever():
         return jsonify({"error": "Internal Server Error"}), 500
 
 
-# Used to delete an account completely along with all its data.
 @user_bp.route("/user/accountdelete", methods=["POST"])
+@limiter.limit("25/hour")
+def delete_account():
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    user_id = get_user_id_with_session_token(session_token)
+    if not check_session(session_token, user_id):
+        return jsonify({"timeout": "Session timeout!"}), 440
+
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+    tfa_code = data.get("tfa_code")  # ✅ TFA code is only present in the second request
+
+    redis_client = redis_connection_pool()
+    tfa_pending_key = f"{user_id}:tfa_pending"
+
+    # ✅ Step 1: Check if this is the second request (TFA code provided)
+    if tfa_code:
+        # Check if user is authorized for TFA (first step was completed)
+        if not redis_client.get(tfa_pending_key):
+            return jsonify({"error": "Invalid or expired request"}), 401  # Reject if no previous step
+        redis_client.delete(tfa_pending_key)  # ✅ Remove temporary session after use
+
+        # Validate the provided TFA code
+        if not validate_tfa(tfa_code, username, user_id):
+            return jsonify({"error": "Invalid TFA code"}), 401
+
+        # ✅ Proceed to account deletion after successful 2FA verification
+
+    else:
+        # ✅ Step 2: If no TFA code provided, verify password first
+        if not check_pass(password, username):
+            return jsonify({"error": "Unauthorized"}), 401
+
+        # ✅ Step 3: Check if 2FA is required
+        if tfa_check(username, user_id):
+            # Store temporary authorization in Redis (expires in 5 minutes)
+            redis_client.setex(tfa_pending_key, 300, "pending")  # ✅ Store flag for 5 minutes
+            return jsonify({"tfa_confirm": "tfa_confirm", "username": username}), 200
+        
+        # If no TFA is enabled, continue deletion immediately
+
+    # ✅ Step 4: Delete the account (Only runs if no TFA or valid TFA)
+    try:
+        with mariadb_pool.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM user_info WHERE user_id = %s", (user_id,))
+                cursor.execute("DELETE FROM pm_users WHERE user_id = %s", (user_id,))
+                cursor.execute("DELETE FROM sessions WHERE user_id = %s", (user_id,))
+                conn.commit()
+                
+                session.clear()
+                response = jsonify({"delete_complete": "delete_complete"})
+                response.set_cookie("session_token", "", expires=0)
+
+                return response
+    except mariadb.Error:
+        return jsonify({"error": "Internal Server Error"}), 500
+
+
+
+# Used to delete an account completely along with all its data.
+""" @user_bp.route("/user/accountdelete", methods=["POST"])
 @limiter.limit("25/hour")
 def delete_account():
     session_token = request.cookies.get("session_token")
@@ -192,11 +265,13 @@ def delete_account():
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
+    tfa_code = data.get("tfa_code")
     if not check_pass(password, username):
         return jsonify({"error": "unauthorized"}), 401
     user_id = get_user_id_with_session_token(session_token)
     if tfa_check(username, user_id):
-        return jsonify({"tfa_confirm": "tfa_confirm", "username": username}), 200
+        if not tfa_code:
+            return jsonify({"tfa_confirm": "tfa_confirm", "username": username}), 200
     else:
         try:
             with mariadb_pool.get_connection() as conn:
@@ -239,7 +314,7 @@ def tfa_account_deletion():
                     response.set_cookie("session_token", "", expires=0)
                     return response
         except mariadb.Error as e:
-            return jsonify({"error": "Internal Server Error"}), 500
+            return jsonify({"error": "Internal Server Error"}), 500 """
 
 
 # Is used to provide a list of the services a specific has stored in the manager already.

@@ -58,6 +58,7 @@ def redis_connection_pool():
                 except Exception as e:
                     logging.error("There was an error during the initialization of the Redis connection pool: %s", e)
                     return None
+                
     return redis_client
 
 
@@ -88,4 +89,5 @@ def mariadb_connection_pool():
                 except Exception as e:
                     logging.error("There was an error during the initialization of the database", e)
                     return None
+                
     return mariadb_pool

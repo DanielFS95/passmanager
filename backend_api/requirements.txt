@@ -13,4 +13,3 @@ pyotp
 qrcode
 Flask-Limiter
 redis
-json

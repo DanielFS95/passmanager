@@ -87,6 +87,11 @@ services:
     environment:
       - DOCKER_USERNAME=${DOCKER_USER}
       - DOCKER_PASSWORD=${DOCKER_PASS}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASS=${MARIADB_PASS}
+      - MARIADB_HOST=${MARIADB_HOST}
+      - MARIADB_PORT=${MARIADB_PORT}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.dfsprojekt.dk`)"

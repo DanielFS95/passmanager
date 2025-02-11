@@ -56,7 +56,7 @@ def get_connection_pool():
                 try:
                     logging.debug("Attempting to initialize MariaDB connection pool...")
                     pool = mariadb.ConnectionPool(
-                        user=os.getenv("$MARIADB_USER"),
+                        user=os.getenv("MARIADB_USER"),
                         password=os.getenv("MARIADB_PASS"),
                         host=os.getenv("MARIADB_HOST"),
                         port=int(os.getenv("MARIADB_PORT")),

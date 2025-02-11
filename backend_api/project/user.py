@@ -50,22 +50,23 @@ def add_service():
                         "AND service = %s AND user_id = %s", (encrypt_pass, password_leak_amount, username, service, user_id)
                     )
                     conn.commit()
-                    return (jsonify({"pass_overwritten": "completed"})), 200
+
+                    result_message = {"pass_overwritten":"completed"}
                 else:
                     cursor.execute(
                         "INSERT INTO user_info (ulid, user_id, password_leak_amount, service, password, username)"
                         "VALUES (%s, %s, %s, %s, %s, %s)", (id, user_id, password_leak_amount, service, encrypt_pass, username)
                     )
                     conn.commit()
+                    result_message = {"status":"Account added sucessfully"}
 
         redis_client = redis_connection_pool()
         if redis_client:
             cache_data = f"user:{user_id}:services:*"
-            delete_keys = redis_client.keys(cache_data)
-            if delete_keys:
-                redis_client.delete(*delete_keys)
+            for key in redis_client.scan_iter(cache_data):
+                redis_client.delete(key)
 
-        return (jsonify({"status": "Account added succesfully!"}), 200)
+        return jsonify(result_message), 200
 
     except mariadb.Error:
         return jsonify({"error": "Internal Server Error"}), 500

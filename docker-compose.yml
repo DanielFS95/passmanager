@@ -139,23 +139,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
 
-  wazuh-agent:
-    build: ./wazuh-agent
-    container_name: wazuh-agent
-    restart: unless-stopped
-    privileged: true
-    environment:
-      - WAZUH_MANAGER=172.17.0.1
-      - WAZUH_AGENT_NAME=Docker-Agent
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - wazuh-agent-config:/var/ossec/etc
-
-
-
 volumes: 
   portainer_data:
   mariadb_data:
   mariadb_cnf:
   traefik-configurations:
-  wazuh-agent-config:

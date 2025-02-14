@@ -17,6 +17,7 @@ services:
       - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
 
+
   traefik:
     image: traefik:latest
     container_name: traefik
@@ -64,6 +65,7 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
 
+
   db:
     image: mariadb:latest
     container_name: mariadb
@@ -77,6 +79,8 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
       - mariadb_cnf:/etc/mysql/
+
+
   redis:
     image: redis:latest
     container_name: redis
@@ -89,7 +93,6 @@ services:
     tmpfs:
       - /data
 
-  
 
   api:
     image: danielfs95/danielfsdocker:latest
@@ -119,6 +122,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.api.middlewares=my-geoblock@file"
 
+
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
@@ -134,8 +138,28 @@ services:
       - /home/danielfs/docker/config.json:/config.json
       - /var/run/docker.sock:/var/run/docker.sock
 
+
+    wazuh-agent:
+        image: opennix/wazuh-agent:latest
+        container_name: wazuh-agent
+        restart: unless-stopped
+        priviliged: true
+        environment:
+          - JOIN_MANAGER_MASTER_HOST=172.17.0.1
+          - JOIN_MANAGER_WORKER_HOST=172.17.0.1
+          - JOIN_MANAGER_PORT=1514
+          - NODE_NAME=Docker-Agent
+          - WAZUH_GROUPS=default
+        volumes:
+          - /var/lib/docker/containers:/var/lib/docker/containers:ro
+          - wazuh-agent-config:/var/ossec/etc
+
+
+
+
 volumes: 
   portainer_data:
   mariadb_data:
   mariadb_cnf:
   traefik-configurations:
+  wazuh-agent-config:

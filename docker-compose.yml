@@ -139,20 +139,20 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
 
-    wazuh-agent:
-        image: opennix/wazuh-agent:latest
-        container_name: wazuh-agent
-        restart: unless-stopped
-        priviliged: true
-        environment:
-          - JOIN_MANAGER_MASTER_HOST=172.17.0.1
-          - JOIN_MANAGER_WORKER_HOST=172.17.0.1
-          - JOIN_MANAGER_PORT=1514
-          - NODE_NAME=Docker-Agent
-          - WAZUH_GROUPS=default
-        volumes:
-          - /var/lib/docker/containers:/var/lib/docker/containers:ro
-          - wazuh-agent-config:/var/ossec/etc
+  wazuh-agent:
+      image: opennix/wazuh-agent:latest
+      container_name: wazuh-agent
+      restart: unless-stopped
+      priviliged: true
+      environment:
+        - JOIN_MANAGER_MASTER_HOST=172.17.0.1
+        - JOIN_MANAGER_WORKER_HOST=172.17.0.1
+        - JOIN_MANAGER_PORT=1514
+        - NODE_NAME=Docker-Agent
+        - WAZUH_GROUPS=default
+      volumes:
+        - /var/lib/docker/containers:/var/lib/docker/containers:ro
+        - wazuh-agent-config:/var/ossec/etc
 
 
 

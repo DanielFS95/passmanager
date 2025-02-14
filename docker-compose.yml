@@ -140,16 +140,13 @@ services:
 
 
   wazuh-agent:
-    image: opennix/wazuh-agent:latest
+    build: ./wazuh-agent
     container_name: wazuh-agent
     restart: unless-stopped
     privileged: true
     environment:
-      - JOIN_MANAGER_MASTER_HOST=172.17.0.1
-      - JOIN_MANAGER_WORKER_HOST=172.17.0.1
-      - JOIN_MANAGER_PORT=1514
-      - NODE_NAME=Docker-Agent
-      - WAZUH_GROUPS=default
+      - WAZUH_MANAGER=172.17.0.1
+      - WAZUH_AGENT_NAME=Docker-Agent
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - wazuh-agent-config:/var/ossec/etc

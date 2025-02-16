@@ -97,6 +97,10 @@ services:
     image: danielfs95/danielfsdocker:latest
     container_name: api
     restart: always
+    depends_on:
+      - db
+      - redis
+      - traefik
     expose:
       - 8000
     environment:

@@ -77,7 +77,7 @@ def mariadb_connection_pool():
                         port=int(os.getenv("MARIADB_PORT")),
                         database=os.getenv("MARIADB_DATABASE"),
                         pool_name="mariadb_pool",
-                        pool_size=20
+                        pool_size=50
                     )
                     logging.debug("Connection mariadb_pool initialized successfully.")
                 except mariadb.OperationalError as e:

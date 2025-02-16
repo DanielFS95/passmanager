@@ -69,7 +69,7 @@ def mariadb_connection_pool():
         with mariadb_lock:
             if mariadb_pool is None:
                 try:
-                    logging.debug("Attempting to initialize MariaDB connection mariadb_pool...")
+                    logging.debug("🔄 Attempting to initialize MariaDB connection pool...")
                     mariadb_pool = mariadb.ConnectionPool(
                         user=os.getenv("MARIADB_USER"),
                         password=os.getenv("MARIADB_PASS"),
@@ -79,15 +79,8 @@ def mariadb_connection_pool():
                         pool_name="mariadb_pool",
                         pool_size=50
                     )
-                    logging.debug("Connection mariadb_pool initialized successfully.")
-                except mariadb.OperationalError as e:
-                    logging.critical(f"Operational error while connecting to the database: {e}")
+                    logging.debug("✅ Connection pool initialized successfully.")
+                except mariadb.Error as e:
+                    logging.critical(f"❌ Database connection pool error: {e}")
                     return None
-                except mariadb.InterfaceError as e:
-                    logging.error(f"There was an error with the interface: {e}")
-                    return None
-                except Exception as e:
-                    logging.error(f"There was an error during the initialization of the database: {e}")
-                    return None
-                
     return mariadb_pool

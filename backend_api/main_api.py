@@ -1,5 +1,6 @@
-from flask import Flask
+from flask import Flask, request
 import os
+import logging
 from project.two_factor_auth import tfa_bp
 from project.user import user_bp
 from project.auth import auth_bp
@@ -14,6 +15,16 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 init_limiter(app)
 
+
+@app.before_request
+def log_request():
+    request_data = request.get_json(silent=True)  # Capture JSON body (if any)
+    logging.info(f"📥 Incoming request: {request.method} {request.path} | IP: {request.remote_addr} | Data: {request_data}")
+
+@app.after_request
+def log_response(response):
+    logging.info(f"📤 Response: {response.status_code} | Duration: {duration:.3f}s")
+    return response
 
 app.register_blueprint(user_bp, url_prefix='/user')
 app.register_blueprint(tfa_bp, url_prefix='/tfa')

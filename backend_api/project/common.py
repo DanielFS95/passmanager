@@ -77,6 +77,13 @@ def redis_connection_pool():
     return redis_client
 
 
+def get_redis_pool():
+    global redis_client
+    if redis_client is None:
+        redis_client = redis_connection_pool()
+    return redis_client
+
+
 # Connection mariadb_pool. To speed up the process of checking database.
 def mariadb_connection_pool():
     global mariadb_pool

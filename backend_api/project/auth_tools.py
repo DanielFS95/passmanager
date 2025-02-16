@@ -4,16 +4,10 @@ from datetime import timedelta, datetime
 import base64
 from Crypto.Cipher import AES
 import bcrypt
-from project.common import mariadb_connection_pool, debug_db_connection
+from project.common import debug_db_connection, get_mariadb_pool
 import hashlib
 import requests
 import re
-
-def get_mariadb_pool():
-    global mariadb_pool
-    if mariadb_pool is None:
-        mariadb_pool = mariadb_connection_pool()
-    return mariadb_pool
 
 
 

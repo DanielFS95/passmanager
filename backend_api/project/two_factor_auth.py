@@ -7,16 +7,11 @@ import pyotp
 import qrcode
 import os
 from io import StringIO
-from project.common import mariadb_connection_pool, limiter, debug_db_connection
+from project.common import limiter, debug_db_connection, get_mariadb_pool
 from project.auth_tools import get_user_id_with_username, get_user_id_with_session_token, check_session, store_session, pass_decrypt, pass_encrypt
 
 tfa_bp = Blueprint('tfa', __name__)
 
-def get_mariadb_pool():
-    global mariadb_pool
-    if mariadb_pool is None:
-        mariadb_pool = mariadb_connection_pool()
-    return mariadb_pool
 
 store_secret_key = {}      # Bruges til at kunne udnytte store_secret_key i anden funktion, uden behov for at sende nøglen tilbage igen. (Ingen session oprettet her)
 

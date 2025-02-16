@@ -3,17 +3,13 @@ import mariadb
 from datetime import timedelta, datetime
 import ulid
 import secrets
-from project.common import limiter, validatepass, mariadb_connection_pool, debug_db_connection
+from project.common import limiter, validatepass, debug_db_connection, get_mariadb_pool
 from project.auth_tools import hash_pass, store_session, check_pass, get_user_id_with_username, UsernameValidation
 from project.two_factor_auth import tfa_check
 
 auth_bp = Blueprint('account', __name__)
 
-def get_mariadb_pool():
-    global mariadb_pool
-    if mariadb_pool is None:
-        mariadb_pool = mariadb_connection_pool()
-    return mariadb_pool
+
 
 
 

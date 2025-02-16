@@ -5,18 +5,13 @@ import json
 import os
 from flask import request, jsonify, session
 import ulid
-from project.common import limiter, mariadb_connection_pool, redis_connection_pool, debug_db_connection
+from project.common import limiter, redis_connection_pool, debug_db_connection, get_mariadb_pool
 from project.auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt, hibp_password_leak
 from project.two_factor_auth import tfa_check, validate_tfa
 
 
 user_bp = Blueprint('user', __name__)
 
-def get_mariadb_pool():
-    global mariadb_pool
-    if mariadb_pool is None:
-        mariadb_pool = mariadb_connection_pool()
-    return mariadb_pool
 
 
 def get_redis_pool():

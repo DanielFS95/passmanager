@@ -99,3 +99,10 @@ def mariadb_connection_pool():
                     logging.critical(f"❌ Database connection pool error: {e}")
                     return None
     return mariadb_pool
+
+
+def get_mariadb_pool():
+    global mariadb_pool
+    if mariadb_pool is None:
+        mariadb_pool = mariadb_connection_pool()
+    return mariadb_pool

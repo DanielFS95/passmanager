@@ -23,7 +23,7 @@ def log_request():
 
 @app.after_request
 def log_response(response):
-    logging.info(f"📤 Response: {response.status_code} | Duration: {duration:.3f}s")
+    logging.info(f"📤 Response: {response.status_code}")
     return response
 
 app.register_blueprint(user_bp, url_prefix='/user')

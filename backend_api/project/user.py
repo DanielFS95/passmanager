@@ -5,7 +5,7 @@ import json
 import os
 from flask import request, jsonify, session
 import ulid
-from project.common import limiter, mariadb_connection_pool, redis_connection_pool
+from project.common import limiter, mariadb_connection_pool, redis_connection_pool, debug_db_connection
 from project.auth_tools import check_pass, get_user_id_with_session_token, check_session, update_session, pass_encrypt, pass_decrypt, hibp_password_leak
 from project.two_factor_auth import tfa_check, validate_tfa
 
@@ -30,6 +30,7 @@ def get_redis_pool():
 @user_bp.route("/services/add", methods=["POST"])
 @limiter.limit("100/hour")
 def add_service():
+    debug_db_connection()
     session_token = request.cookies.get("session_token")
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
@@ -87,6 +88,7 @@ def add_service():
 @user_bp.route("/services/remove", methods=["DELETE"])
 @limiter.limit("100/hour")
 def remove_service():
+    debug_db_connection()
     session_token = request.cookies.get("session_token")
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
@@ -136,6 +138,7 @@ def remove_service():
 @user_bp.route("/username/availability", methods=["GET"])
 @limiter.limit("100/hour")
 def check_username():
+    debug_db_connection()
     username = request.args.get("username").strip().lower()
     if not username:
         return jsonify({"error":"Missing username"}), 400
@@ -155,6 +158,7 @@ def check_username():
 @user_bp.route("/services/retrieve", methods=["GET"])
 @limiter.limit("100/hour")
 def password_retriever():
+    debug_db_connection()
     session_token = request.cookies.get("session_token")
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
@@ -202,6 +206,7 @@ def password_retriever():
 @user_bp.route("/accountdelete", methods=["POST"])
 @limiter.limit("25/hour")
 def delete_account():
+    debug_db_connection()
     session_token = request.cookies.get("session_token")
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
@@ -260,6 +265,7 @@ def delete_account():
 @user_bp.route("/services/servicelist", methods=["GET"])
 @limiter.limit("1000/hour")
 def showlist():
+    debug_db_connection()
     session_token = request.cookies.get("session_token")
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401

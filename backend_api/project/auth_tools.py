@@ -4,12 +4,17 @@ from datetime import timedelta, datetime
 import base64
 from Crypto.Cipher import AES
 import bcrypt
-from project.common import mariadb_connection_pool
+from project.common import mariadb_connection_pool, debug_db_connection
 import hashlib
 import requests
 import re
 
-mariadb_pool = mariadb_connection_pool()
+def get_mariadb_pool():
+    global mariadb_pool
+    if mariadb_pool is None:
+        mariadb_pool = mariadb_connection_pool()
+    return mariadb_pool
+
 
 
 def pass_encrypt(key, password):
@@ -40,8 +45,10 @@ def hash_pass(password):
 
 # Checks if the password is valid on account login attempt.
 def check_pass(password, username):
+    debug_db_connection()
+
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT password FROM pm_users WHERE username = %s", (username,))
                 result = cursor.fetchone()
@@ -59,8 +66,10 @@ def check_pass(password, username):
 
 # Retrives the unique user_id of an account. Needed for specific user-actions.
 def get_user_id_with_username(username):
+    debug_db_connection()
+
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT user_id FROM pm_users WHERE username = %s", (username,))
                 get_ulid = cursor.fetchone()
@@ -76,8 +85,10 @@ def get_user_id_with_username(username):
 
 # Provides a different way to obtain user_id. Useful when functions doesn't have a username to get user_id with.
 def get_user_id_with_session_token(session_token):
+    debug_db_connection()
+
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT user_id FROM sessions WHERE session_token = %s", (session_token,))
@@ -92,8 +103,10 @@ def get_user_id_with_session_token(session_token):
 
 # Stores the session in the database
 def store_session(session_token, user_id, expires_at, username):
+    debug_db_connection()
+
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     "INSERT INTO sessions (session_token, user_id, expires_at, username)"
@@ -107,8 +120,10 @@ def store_session(session_token, user_id, expires_at, username):
 
 # Checks if the session for a user has expired.
 def check_session(session_token, user_id):
+    debug_db_connection()
+
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT expires_at FROM sessions WHERE session_token = %s"
@@ -128,8 +143,10 @@ def check_session(session_token, user_id):
 
 # Updates the expiration date of a already created session.
 def update_session(session_token, user_id):
+    debug_db_connection()
+
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 current_time = datetime.now() + timedelta(minutes=30)
                 cursor.execute(

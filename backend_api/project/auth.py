@@ -3,7 +3,7 @@ import mariadb
 from datetime import timedelta, datetime
 import ulid
 import secrets
-from project.common import limiter, validatepass, mariadb_connection_pool
+from project.common import limiter, validatepass, mariadb_connection_pool, debug_db_connection
 from project.auth_tools import hash_pass, store_session, check_pass, get_user_id_with_username, UsernameValidation
 from project.two_factor_auth import tfa_check
 
@@ -20,6 +20,8 @@ def get_mariadb_pool():
 @auth_bp.route("/register", methods=["PUT"])
 @limiter.limit("100/hour")
 def user_register():
+    debug_db_connection()
+
     data = request.get_json()
     username = data.get("username", "").strip().lower()
     if UsernameValidation(username) is not True:
@@ -33,7 +35,7 @@ def user_register():
 
     hashed_pass = hash_pass(password)
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT 1 FROM pm_users WHERE username = %s", (username,))
                 if cursor.fetchone():
@@ -51,6 +53,8 @@ def user_register():
 @limiter.limit("100/hour")
 @limiter.limit("10/minute")
 def user_login():
+    debug_db_connection()
+
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
@@ -81,9 +85,11 @@ def user_login():
 @auth_bp.route("/logout", methods=["POST"])
 @limiter.limit("50/hour")
 def user_logout():
+    debug_db_connection()
+
     session_token = request.cookies.get("session_token")
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("DELETE FROM sessions WHERE session_token = %s", (session_token,))
                 conn.commit()

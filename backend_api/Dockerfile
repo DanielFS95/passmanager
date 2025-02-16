@@ -16,4 +16,4 @@ RUN python -m pip install -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["python", "-m" , "main_api"]
+ENTRYPOINT ["python", "-m" , "main_api"]

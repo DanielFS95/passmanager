@@ -48,7 +48,6 @@ services:
 
 
     environment:
-      - DOPPLER_TOKEN
       - SIMPLY_API_KEY=${SIMPLY_API_KEY}
       - SIMPLY_ACCOUNT_NAME=${SIMPLY_ACCOUNT_NAME}
       - EMAIL=${EMAIL}

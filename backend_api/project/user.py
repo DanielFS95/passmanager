@@ -18,7 +18,7 @@ def get_mariadb_pool():
         mariadb_pool = mariadb_connection_pool()
     return mariadb_pool
 
-
+#testestestest
 def get_redis_pool():
     global redis_client
     if redis_client is None:

@@ -6,7 +6,7 @@ from flask_limiter.util import get_remote_address
 import logging
 import threading
 import redis
-
+import inspect
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -34,6 +34,21 @@ mariadb_pool = None
 redis_client = None
 redis_lock = threading.Lock()
 mariadb_lock = threading.Lock()
+
+
+
+active_db_connections = threading.local()
+
+def debug_db_connection():
+    """Logs which API function is opening a database connection."""
+    if not hasattr(active_db_connections, "count"):
+        active_db_connections.count = 0
+
+    active_db_connections.count += 1
+    calling_function = inspect.stack()[1].function  # Get the calling function's name
+
+    logging.debug(f"📡 Thread {threading.get_ident()} → DB Connection acquired in {calling_function}! Active DB connections: {active_db_connections.count}")
+
 
 
 def redis_connection_pool():

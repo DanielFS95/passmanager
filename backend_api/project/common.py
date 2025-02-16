@@ -81,13 +81,13 @@ def mariadb_connection_pool():
                     )
                     logging.debug("Connection mariadb_pool initialized successfully.")
                 except mariadb.OperationalError as e:
-                    logging.critical("Operational error while connecting to the database", e)
+                    logging.critical(f"Operational error while connecting to the database: {e}")
                     return None
                 except mariadb.InterfaceError as e:
-                    logging.error("There was an error with the interface", e)
+                    logging.error(f"There was an error with the interface: {e}")
                     return None
                 except Exception as e:
-                    logging.error("There was an error during the initialization of the database", e)
+                    logging.error(f"There was an error during the initialization of the database: {e}")
                     return None
                 
     return mariadb_pool

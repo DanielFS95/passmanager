@@ -12,7 +12,11 @@ from project.auth_tools import get_user_id_with_username, get_user_id_with_sessi
 
 tfa_bp = Blueprint('tfa', __name__)
 
-mariadb_pool = mariadb_connection_pool()
+def get_mariadb_pool():
+    global mariadb_pool
+    if mariadb_pool is None:
+        mariadb_pool = mariadb_connection_pool()
+    return mariadb_pool
 
 store_secret_key = {}      # Bruges til at kunne udnytte store_secret_key i anden funktion, uden behov for at sende nøglen tilbage igen. (Ingen session oprettet her)
 
@@ -55,7 +59,7 @@ def verify_tfa():
         encryption_key = bytes.fromhex(os.getenv("ENCRYPTION_KEY"))
         key = pass_encrypt(encryption_key, tfa_key)
         try:
-            with mariadb_pool.get_connection() as conn:
+            with get_mariadb_pool().get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
                         "UPDATE pm_users SET tfa_key = %s WHERE user_id = %s AND username = %s", (key, user_id, username),
@@ -84,7 +88,7 @@ def remove_tfa():
     valid_tfa = validate_tfa(tfa_code, username, user_id)
     if valid_tfa is True:
         try:
-            with mariadb_pool.get_connection() as conn:
+            with get_mariadb_pool().get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
                         "UPDATE pm_users SET tfa_key = NULL WHERE user_id = %s AND username = %s", (user_id, username)
@@ -121,7 +125,7 @@ def tfa_login():
 # Checks if the user has 2-Factor enabled
 def tfa_check(username, user_id):
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT tfa_key FROM pm_users WHERE username = %s AND user_id = %s", (username, user_id))
                 result = cursor.fetchone()
@@ -137,7 +141,7 @@ def tfa_check(username, user_id):
 # If TFA is enabled, this checks if the user-provided tfa-key is correct.
 def validate_tfa(tfa_code, username, user_id):
     try:
-        with mariadb_pool.get_connection() as conn:
+        with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT tfa_key FROM pm_users WHERE username = %s AND user_id = %s", (username, user_id))
                 result = cursor.fetchone()

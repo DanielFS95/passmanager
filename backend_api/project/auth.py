@@ -9,7 +9,12 @@ from project.two_factor_auth import tfa_check
 
 auth_bp = Blueprint('account', __name__)
 
-mariadb_pool = mariadb_connection_pool()
+def get_mariadb_pool():
+    global mariadb_pool
+    if mariadb_pool is None:
+        mariadb_pool = mariadb_connection_pool()
+    return mariadb_pool
+
 
 
 @auth_bp.route("/register", methods=["PUT"])

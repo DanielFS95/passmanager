@@ -19,10 +19,9 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 @app.before_request
 def log_request():
-    request_data = request.get_json(silent=True)  # Capture JSON body (if any)
-    if request_data and "password" in request_data:
-        request_data["password"] = "***REDACTED***"
-    logging.info(f"📥 Incoming request: {request.method} {request.path} | IP: {request.remote_addr} | Data: {request_data}")
+    request_data = request.get_json(silent=True) or {}  # Capture JSON body (if any)
+    username = request_data.get("username", "Unknown")
+    logging.info(f"📥 Incoming request: {request.method} {request.path} | IP: {request.remote_addr} | Username: {username}")
 
 @app.after_request
 def log_response(response):

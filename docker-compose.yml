@@ -57,7 +57,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./data/acme.json:/letsencrypt/acme.json
       - traefik-configurations:/configuration
-      - traefik-logs:/var/logfile.log
+      - /var/log/logfile.log:/var/logfile.log
 
     labels:
       - "traefik.enable=true"
@@ -160,7 +160,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - wazuh-agent-config:/var/ossec/etc
-      - traefik-logs:/var/log/
+      - /var/log/logfile.log:/var/log/logfile.log:ro
   
 
 
@@ -170,4 +170,3 @@ volumes:
   mariadb_cnf:
   traefik-configurations:
   wazuh-agent-config:
-  traefik-logs:

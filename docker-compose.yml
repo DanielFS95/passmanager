@@ -134,7 +134,7 @@ services:
       - REPO_PASS=${DOCKER_PASS}
       - WATCHTOWER_LABEL_ENABLE=true
       - WATCHTOWER_CLEANUP=true
-      ##- WATCHTOWER_SCHEDULE=0 0 * * * *
+      #- WATCHTOWER_SCHEDULE=0 0 * * * *
       - WATCHTOWER_DEBUG=true
       - WATCHTOWER_POLL_INTERVAL=120 
     volumes:

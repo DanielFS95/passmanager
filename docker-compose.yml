@@ -26,8 +26,6 @@ services:
       - 80:80
       - 443:443
     command:
-      - "--log.level=DEBUG"
-      - "--log.filePath=/var/log/logfile.log"
       - "--providers.docker"
       - "--providers.docker.exposedByDefault=false"
       - "--entrypoints.web.address=:80"

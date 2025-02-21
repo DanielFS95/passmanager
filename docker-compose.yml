@@ -158,7 +158,6 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /wazuh_conf/ossec.conf:/var/ossec/etc/ossec.conf:ro
-      - wazuh-agent-config:/var/ossec/etc
   
 
 
@@ -167,4 +166,3 @@ volumes:
   mariadb_data:
   mariadb_cnf:
   traefik-configurations:
-  wazuh-agent-config:

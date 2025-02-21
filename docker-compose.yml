@@ -27,7 +27,7 @@ services:
       - 443:443
     command:
       - "--log.level=DEBUG"
-      - "--log.filePath=/var/logfile.log"
+      - "--log.filePath=/var/log/logfile.log"
       - "--providers.docker"
       - "--providers.docker.exposedByDefault=false"
       - "--entrypoints.web.address=:80"
@@ -160,7 +160,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - wazuh-agent-config:/var/ossec/etc
-      - traefik-logs:/var/logfile.log:ro
+      - traefik-logs:/var/log/
   
 
 

@@ -158,7 +158,6 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - wazuh-agent-config:/var/ossec/etc
-      - /var/log/logfile.log:/var/log/logfile.log:ro
   
 
 

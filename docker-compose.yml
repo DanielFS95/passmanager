@@ -142,25 +142,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
 
-  wazuh-agent:
-    image: opennix/wazuh-agent:latest
-    container_name: wazuh-agent
-    restart: unless-stopped
-    privileged: true
-    environment:
-      - JOIN_MANAGER_MASTER_HOST=172.17.0.1
-      - JOIN_MANAGER_WORKER_HOST=172.17.0.1
-      - JOIN_MANAGER_USER=${WAZUH_API_USERNAME}
-      - JOIN_MANAGER_PASSWORD=${WAZUH_API_PASSWORD}
-      - NODE_NAME=Docker-Agent
-      - WAZUH_GROUPS=default
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /wazuh_conf/ossec.conf:/var/ossec/etc/ossec.conf
-  
-
-
 volumes: 
   portainer_data:
   mariadb_data:

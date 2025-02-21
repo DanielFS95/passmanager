@@ -160,7 +160,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - wazuh-agent-config:/var/ossec/etc
-      - traefik-logs:/var/log/traefik:ro
+      - traefik-logs:/var/logfile.log:ro
   
 
 

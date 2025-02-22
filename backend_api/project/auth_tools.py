@@ -124,6 +124,10 @@ def check_session(session_token, user_id):
                     "AND user_id = %s", (session_token, user_id)
                 )
                 result = cursor.fetchone()
+
+                if result is None:
+                    return False
+                
                 current_time = arrow.utcnow()
                 user_expiration_from_db = result[0]
                 user_expiration = arrow.get(user_expiration_from_db)

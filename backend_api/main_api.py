@@ -20,8 +20,10 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 @app.before_request
 def log_request():
     request_data = request.get_json(silent=True) or {}  # Capture JSON body (if any)
-    username = request_data.get("username", "Unknown")
-    logging.info(f"📥 Incoming request: {request.method} {request.path} | IP: {request.remote_addr} | Username: {username}")
+    username = request.cookies.get("username", "Anonymous")
+    if username == "Anonymous":
+        username = request_data.get("username", "Anonymous")
+    logging.info(f"📥 Incoming request: {request.method} {request.path} | Username: {username}")
 
 @app.after_request
 def log_response(response):

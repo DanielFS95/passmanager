@@ -34,9 +34,6 @@ mariadb_pool = None
 redis_client = None
 redis_lock = threading.Lock()
 mariadb_lock = threading.Lock()
-
-
-
 active_db_connections = threading.local()
 
 def debug_db_connection():

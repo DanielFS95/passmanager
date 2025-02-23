@@ -124,11 +124,6 @@ services:
       - "traefik.http.services.api.loadbalancer.server.port=8000"
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.api.middlewares=my-geoblock@file"
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://127.0.0.1:1514"
-        tag: "api"
 
 
   watchtower:

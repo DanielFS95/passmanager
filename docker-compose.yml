@@ -127,7 +127,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://172.17.0.1:1514"
+        syslog-address: "udp://127.0.0.1:1514"
         tag: "api"
 
 

@@ -32,7 +32,6 @@ def tfa_generate():
     qr_ascii = StringIO()
     qr.print_ascii(out=qr_ascii)
     qr_ascii_string = qr_ascii.getvalue()
-
     return jsonify({"qr_code_succes": qr_ascii_string}), 200
 
 

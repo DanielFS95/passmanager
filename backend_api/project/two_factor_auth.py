@@ -77,8 +77,8 @@ def remove_tfa():
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
     user_id = get_user_id_with_session_token(session_token)
-    if not check_session(session_token, user_id):
-        return jsonify({"timeout": "Session timeout!"}), 440
+    if not check_session(session_token):
+        return jsonify({"error": "Unauthorized"}), 401
     username = data.get("username")
     tfa_code = data.get("tfa_code")
     valid_tfa = validate_tfa(tfa_code, username, user_id)

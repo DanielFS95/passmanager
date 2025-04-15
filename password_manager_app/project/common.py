@@ -15,9 +15,9 @@ def clear_screen():
 
 
 
-def UsernameValidation(username):
+def username_validation(username):
     # username is between 4 and 25 characters
-    if len(username) < 4 or len(username) > 25 :
+    if len(username) < 4 or len(username) > 25:
         console.print("[bold red]Username must be between 4 and 25 characters![/bold red]")
         return False
     
@@ -33,7 +33,7 @@ def UsernameValidation(username):
 
     # doesn't contain consecutive special chars
     if re.search(r'_{2,}|-{2,}|@{2,}', username):
-        console.print("[bold red]Username must not cotain consecutive special chars[/bold red]")
+        console.print("[bold red]Username must not contain consecutive special chars[/bold red]")
         return False
     
     # contains only letters, numbers and underscore
@@ -42,7 +42,7 @@ def UsernameValidation(username):
     # checks if all letters/numbers in a username is valid
     for ch in username:
         if ch.lower() not in valid_grammar:
-            console.print(f"[bold red]{ch} is not allowed![/bold red]")
+            console.print(f"[bold red]The character '{ch}' is not allowed in the username![/bold red]")
             return False
 
     return True

@@ -36,7 +36,7 @@ def two_factor_qrcode():
                 clear_screen()
                 break
             elif r.status_code == 200 and r.json().get("tfa_complete"):
-                console.print("[bold green]2FA er nu tilføjet til din konto![/bold green]")
+                console.print("[bold bright_green]2FA er nu tilføjet til din konto![/bold bright_green]")
                 return False
             elif r.status_code == 200 and r.json().get("error"):
                 console.print("Der var et problem!")

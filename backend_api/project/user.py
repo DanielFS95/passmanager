@@ -21,8 +21,8 @@ def add_service():
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
     user_id = get_user_id_with_session_token(session_token)
-    if not check_session(session_token, user_id):
-        return jsonify({"timeout": "Session timeout!"}), 440
+    if not check_session(session_token):
+        return jsonify({"error": "Unauthorized"}), 401
     data = request.get_json()
     if not data:
         return jsonify({"error":"Data error"}), 403
@@ -79,8 +79,8 @@ def remove_service():
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
     user_id = get_user_id_with_session_token(session_token)
-    if not check_session(session_token, user_id):
-        return jsonify({"timeout": "Session timeout!"}), 440
+    if not check_session(session_token):
+        return jsonify({"error": "Unauthorized"}), 401
     data = request.get_json()
     if not data:
         return jsonify({"error": "Der er ingen data at hente"}), 400
@@ -125,9 +125,10 @@ def remove_service():
 @limiter.limit("100/hour")
 def check_username():
     debug_db_connection()
-    username = request.args.get("username").strip().lower()
+    username = request.args.get("username")
     if not username:
         return jsonify({"error":"Missing username"}), 400
+    username = username.strip().lower()
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
@@ -149,8 +150,8 @@ def password_retriever():
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
     user_id = get_user_id_with_session_token(session_token)
-    if not check_session(session_token, user_id):
-        return jsonify({"timeout": "Session timeout!"}), 440
+    if not check_session(session_token):
+        return jsonify({"error": "Unauthorized"}), 401
     update_session(session_token, user_id)
 
     data = request.get_json()
@@ -198,8 +199,8 @@ def delete_account():
         return jsonify({"error": "Unauthorized"}), 401
 
     user_id = get_user_id_with_session_token(session_token)
-    if not check_session(session_token, user_id):
-        return jsonify({"timeout": "Session timeout!"}), 440
+    if not check_session(session_token):
+        return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()
     username = data.get("username")
@@ -256,8 +257,8 @@ def showlist():
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
     user_id = get_user_id_with_session_token(session_token)
-    if not check_session(session_token, user_id):
-        return jsonify({"timeout": "Session timeout!"}), 440
+    if not check_session(session_token):
+        return jsonify({"error": "Unauthorized"}), 401
     
 
     redis_client = get_redis_pool()

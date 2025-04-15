@@ -2,7 +2,7 @@ import requests
 import pwinput
 from project import common
 from password_validator import PasswordValidator
-from .common import console, clear_screen, s, UsernameValidation
+from .common import console, clear_screen, s, username_validation
 from .two_factor_auth import two_factor_qrcode
 
 validatepass = PasswordValidator()
@@ -43,7 +43,7 @@ def create_user():
             clear_screen()
             return True
 
-        if not UsernameValidation(username):
+        if not username_validation(username):
             continue
 
         # Check if the username is available

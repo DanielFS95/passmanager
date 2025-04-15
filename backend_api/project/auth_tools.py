@@ -113,8 +113,9 @@ def store_session(session_token, user_id, expires_at, username):
 
 
 # Checks if the session for a user has expired.
-def check_session(session_token, user_id):
+def check_session(session_token):
     debug_db_connection()
+    user_id = get_user_id_with_session_token(session_token)
 
     try:
         with get_mariadb_pool().get_connection() as conn:

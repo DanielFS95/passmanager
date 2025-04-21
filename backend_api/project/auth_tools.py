@@ -33,8 +33,8 @@ def pass_decrypt(key, encrypted_password_base64):
 # Hashes the password, using bcrypt with the salt option enabled. This is used for account creation.
 def hash_pass(password):
     salt = bcrypt.gensalt()
-    hash_passw = bcrypt.hashpw(password.encode("utf-8"), salt)
-    return hash_passw
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), salt)
+    return hashed_password
 
 
 # Checks if the password is valid on account login attempt.
@@ -47,10 +47,10 @@ def check_pass(password, username):
                 cursor.execute("SELECT password FROM pm_users WHERE username = %s", (username,))
                 result = cursor.fetchone()
                 if result:
-                    hash_passw = result[0]
-                    if isinstance(hash_passw, str):
-                        hash_passw = hash_passw.encode("utf-8")
-                    if bcrypt.checkpw(password.encode("utf-8"), hash_passw):
+                    hashed_password = result[0]
+                    if isinstance(hashed_password, str):
+                        hashed_password = hashed_password.encode("utf-8")
+                    if bcrypt.checkpw(password.encode("utf-8"), hashed_password):
                         return True
                     return False
                 return False

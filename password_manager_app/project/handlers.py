@@ -1,39 +1,35 @@
 import msvcrt
 from project import common
 from .common import console, clear_screen
-from .password_services import list_services, retrieve_password, add_service, remove_pass
-from .auth import pwinput, login, create_user, delete_user, two_factor_qrcode, logout
+from .service_utilities import retrieve_password, add_service, remove_pass
+from .auth import pwinput, login,create_user, delete_user, two_factor_qrcode, logout
 from .two_factor_auth import remove_tfa
 
 
 logged_in_username = None
 
-def start_screen_handler():
-    console.print("[bold yellow]Velkommen til Daniel's Password Manager![/bold yellow]")
-    console.print("[italic]\nLog ind eller opret en konto for at bruge Password Manageren[/italic]")
-    console.print("\n[underline green]1. Log ind[/underline green]")
-    console.print("[underline orange3]2. Opret account[/underline orange3]")
-    console.print("[underline red]3. Exit applikationen[/underline red]")
-    choice_start = input("\n\nHvad ønsker du at gøre?: ")
-    return choice_start
 
-
-def logged_in_menu_handler():
-    list_services()
+def account_settings_menu():
+    username = common.logged_in_username
+    console.print(f"[underline]Account indstillinger for {username}:[/underline]")
+    console.print("[italic]Skriv \"b\" i enten username eller password feltet for at afbryde oprettelsen[/italic]")
     print("\n")
-    console.print("[underline yellow]Du har nu følgende valgmuligheder:[/underline yellow]")
-    console.print("\n")
-    console.print("[bright_green]1. Tilføj et nyt password[/bright_green]")
-    console.print("[bright_green]2. Hent et tidligere gemt password[/bright_green]")
-    console.print("[bright_green]3. Slet account/password fra Password Manager[/bright_green]")
+    console.print("1. Tilføj 2FA (2-Factor-Authentication) til din account")
+    console.print("2. Fjern 2FA fra din account")
+    console.print("3. Slet account")
     print("\n")
-    console.print("[cyan]4. Account indstillinger[/cyan]")
-    console.print("[orange3]5. Log ud[/orange3]")
-    console.print("[bright_red]6. Exit applikationen[/bright_red]")
-    console.print("\n")
     choice = input("Hvad ønsker du at gøre?: ")
     return choice
 
+
+def create_account_handler():
+    clear_screen()
+    console.print("[bold cyan]Opret en konto for at bruge Daniels Password Manager.[/bold cyan]")
+    console.print("[italic]Skriv \"b\" i enten username eller password feltet for at afbryde oprettelsen[/italic]")
+    print("\n")
+    account_created = create_user()
+    if not account_created:
+        console.print("Der opstod et problem, og din account blev ikke oprettet!")
 
 def user_login_handler():
     clear_screen()
@@ -54,16 +50,6 @@ def user_login_handler():
             return
         else:
             console.print("[bold bright_red]Login mislykkedes![/bold bright_red]")
-
-
-def create_account_handler():
-    clear_screen()
-    console.print("[bold cyan]Opret en konto for at bruge Daniels Password Manager.[/bold cyan]")
-    console.print("[italic]Skriv \"b\" i enten username eller password feltet for at afbryde oprettelsen[/italic]")
-    print("\n")
-    account_created = create_user()
-    if not account_created:
-        console.print("Der opstod et problem, og din account blev ikke oprettet!")
 
 
 def add_service_handler():
@@ -102,19 +88,6 @@ def remove_password_handler():
             msvcrt.getch()
             clear_screen()
             break
-
-
-def account_settings_menu():
-    username = common.logged_in_username
-    console.print(f"[underline]Account indstillinger for {username}:[/underline]")
-    console.print("[italic]Skriv \"b\" i enten username eller password feltet for at afbryde oprettelsen[/italic]")
-    print("\n")
-    console.print("1. Tilføj 2FA (2-Factor-Authentication) til din account")
-    console.print("2. Fjern 2FA fra din account")
-    console.print("3. Slet account")
-    print("\n")
-    choice = input("Hvad ønsker du at gøre?: ")
-    return choice
 
 
 def account_settings_handler():

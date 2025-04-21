@@ -1,7 +1,8 @@
 import os
 import requests
 from rich.console import Console
-import re
+from tabulate import tabulate
+from project.auth import check_if_session
 
 
 console = Console()
@@ -14,35 +15,27 @@ def clear_screen():
     os.system("cls")
 
 
-
-def username_validation(username):
-    # username is between 4 and 25 characters
-    if len(username) < 4 or len(username) > 25:
-        console.print("[bold red]Username must be between 4 and 25 characters![/bold red]")
-        return False
-    
-    # doesn't contain any whitespaces
-    if re.search(r'\s', username):
-        console.print("[bold red]Username must not contain any whitespaces![/bold red]")
-        return False
-    
-    # ends with a letter or a number.
-    if not username[-1].isalnum():
-        console.print("[bold red]Username must end with a letter or number[/bold red]")
+def list_services():
+    if check_if_session() is False:
         return False
 
-    # doesn't contain consecutive special chars
-    if re.search(r'_{2,}|-{2,}|@{2,}', username):
-        console.print("[bold red]Username must not contain consecutive special chars[/bold red]")
+    try:
+        r = s.get("https://api.dfsprojekt.dk/user/services/servicelist")
+        r.raise_for_status()
+    except requests.RequestException:
+        print("Der opstod en fejl. Prøv igen senere.")
         return False
-    
-    # contains only letters, numbers and underscore
-    valid_grammar = set('abcdefghijklmnopqrstuvwxyzæøå0123456789_-@')
 
-    # checks if all letters/numbers in a username is valid
-    for ch in username:
-        if ch.lower() not in valid_grammar:
-            console.print(f"[bold red]The character '{ch}' is not allowed in the username![/bold red]")
-            return False
-
-    return True
+    servicelist = r.json()
+    if "services" in servicelist:
+        table_data = []
+        for service, accounts in servicelist["services"].items():
+            for account_info in accounts:
+                account = account_info["username"]
+                password_leak_amount = account_info["password_leak_amount"]
+                if password_leak_amount is None:
+                    password_leak_amount = 0
+                table_data.append([service, account, password_leak_amount])
+        table = tabulate(table_data, headers=["Service", "Username/Account", "Password Leak Count"], tablefmt="grid")
+        console.print("\n[bold]Du har passwords for følgende services:[/bold]")
+        print(table)

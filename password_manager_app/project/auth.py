@@ -2,8 +2,9 @@ import requests
 import pwinput
 from project import common
 from password_validator import PasswordValidator
-from .common import console, clear_screen, s, username_validation
+from .common import console, clear_screen, s
 from .two_factor_auth import two_factor_qrcode
+import re
 
 validatepass = PasswordValidator()
 validatepass\
@@ -108,40 +109,6 @@ def create_user():
             return False
 
 
-def delete_user(username):
-    while True:
-        last_choice = input("Er du helt sikker på at du vil slette din account og alle dets data? Du kan ikke fortryde denne handling efter den er udført!(j/n): ")
-        if last_choice == "n":
-            clear_screen()
-            return
-        elif last_choice == "j":
-            clear_screen()
-            break
-        else:
-            clear_screen()
-            print("Ugyldigt input! Bekræft venligst at du ønsker at slette din account")
-            continue
-
-    console.print("[underline]For at kunne slette din account skal du bekræfte med Password og 2FA (Såfremt 2FA er aktivt)[/underline]")
-    password = pwinput.pwinput("Indtast dit password: ")
-    headers = {"Content-Type": "application/json"}
-    jsondata = {"username": username, "password": password}
-    r = s.post("https://api.dfsprojekt.dk/user/accountdelete", json=jsondata, headers=headers)
-    if r.status_code == 200 and r.json().get("tfa_confirm"):
-        username = r.json().get("username")
-        tfa_code = input("Indtast din 2FA Kode: ")
-        jsondata = {"tfa_code": tfa_code, "username": username}
-        r = s.post("https://api.dfsprojekt.dk/user/accountdelete", json=jsondata, headers=headers)
-        if r.status_code == 200 and r.json().get("delete_complete"):
-            clear_screen()
-            console.print("Din account og dets data blev slettet!")
-        else:
-            console.print("Der opstod et problem, og din account blev ikke slettet!")
-    elif r.status_code == 200 and r.json().get("delete_complete"):
-        clear_screen()
-        console.print("Din account og dets data blev slettet!")
-
-
 def check_if_session():
     if not s.cookies:
         console.print("[bold bright_red]Du skal være logget ind først![/bold bright_red]")
@@ -151,7 +118,6 @@ def check_if_session():
 
 def logout():
     if check_if_session() is False:
-        console.print("[bold bright_red]Du skal være logget ind først![/bold bright_red]")
         return False
     try:
         r = s.post("https://api.dfsprojekt.dk/account/logout", headers={"Content-Type": "application/json"})
@@ -167,3 +133,37 @@ def check_username(username):
     params = {"username": username}
     t = s.get("https://api.dfsprojekt.dk/user/username/availability", params=params, headers=headers)
     return t.json().get("available", False)
+
+
+
+def username_validation(username):
+    # username is between 4 and 25 characters
+    if len(username) < 4 or len(username) > 25:
+        console.print("[bold red]Username must be between 4 and 25 characters![/bold red]")
+        return False
+    
+    # doesn't contain any whitespaces
+    if re.search(r'\s', username):
+        console.print("[bold red]Username must not contain any whitespaces![/bold red]")
+        return False
+    
+    # ends with a letter or a number.
+    if not username[-1].isalnum():
+        console.print("[bold red]Username must end with a letter or number[/bold red]")
+        return False
+
+    # doesn't contain consecutive special chars
+    if re.search(r'_{2,}|-{2,}|@{2,}', username):
+        console.print("[bold red]Username must not contain consecutive special chars[/bold red]")
+        return False
+    
+    # contains only letters, numbers and underscore
+    valid_grammar = set('abcdefghijklmnopqrstuvwxyzæøå0123456789_-@')
+
+    # checks if all letters/numbers in a username is valid
+    for ch in username:
+        if ch.lower() not in valid_grammar:
+            console.print(f"[bold red]The character '{ch}' is not allowed in the username![/bold red]")
+            return False
+
+    return True

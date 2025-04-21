@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 import base64
 from Crypto.Cipher import AES
 import bcrypt
-from project.common import debug_db_connection, get_mariadb_pool
+from project.common import get_mariadb_pool
 import hashlib
 import requests
 import re
@@ -48,8 +48,6 @@ def hash_pass(password):
 
 # Checks if the password is valid on account login attempt.
 def check_pass(password, username):
-    debug_db_connection()
-
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
@@ -69,8 +67,6 @@ def check_pass(password, username):
 
 # Retrives the unique user_id of an account. Needed for specific user-actions.
 def get_user_id_with_username(username):
-    debug_db_connection()
-
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
@@ -88,8 +84,6 @@ def get_user_id_with_username(username):
 
 # Provides a different way to obtain user_id. Useful when functions doesn't have a username to get user_id with.
 def get_user_id_with_session_token(session_token):
-    debug_db_connection()
-
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
@@ -106,8 +100,6 @@ def get_user_id_with_session_token(session_token):
 
 # Stores the session in the database
 def store_session(session_token, user_id, expires_at, username):
-    debug_db_connection()
-
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
@@ -123,9 +115,7 @@ def store_session(session_token, user_id, expires_at, username):
 
 # Checks if the session for a user has expired.
 def check_session(session_token):
-    debug_db_connection()
     user_id = get_user_id_with_session_token(session_token)
-
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
@@ -151,8 +141,6 @@ def check_session(session_token):
 
 # Updates the expiration date of a already created session.
 def update_session(session_token, user_id):
-    debug_db_connection()
-
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:

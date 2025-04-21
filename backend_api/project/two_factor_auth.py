@@ -7,7 +7,7 @@ import pyotp
 import qrcode
 import os
 from io import StringIO
-from project.common import limiter, debug_db_connection, get_mariadb_pool
+from project.common import limiter, get_mariadb_pool
 from project.auth_tools import get_user_id_with_username, get_user_id_with_session_token, check_session, store_session, pass_decrypt, pass_encrypt
 
 tfa_bp = Blueprint('tfa', __name__)
@@ -38,7 +38,6 @@ def tfa_generate():
 @tfa_bp.route("/verify", methods=["POST"])
 @limiter.limit("100/hour")
 def verify_tfa():
-    debug_db_connection()
     data = request.get_json()
     username = session.get("username")
     tfa_code = data.get("tfa_code")
@@ -71,7 +70,6 @@ def verify_tfa():
 @tfa_bp.route("/remove", methods=["DELETE"])
 @limiter.limit("100/hour")
 def remove_tfa():
-    debug_db_connection()
     data = request.get_json()
     session_token = request.cookies.get("session_token")
     if not session_token:
@@ -120,7 +118,6 @@ def tfa_login():
 
 # Checks if the user has 2-Factor enabled
 def tfa_check(username, user_id):
-    debug_db_connection()
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:
@@ -137,7 +134,6 @@ def tfa_check(username, user_id):
 
 # If TFA is enabled, this checks if the user-provided tfa-key is correct.
 def validate_tfa(tfa_code, username, user_id):
-    debug_db_connection()
     try:
         with get_mariadb_pool().get_connection() as conn:
             with conn.cursor() as cursor:

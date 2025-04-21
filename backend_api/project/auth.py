@@ -10,9 +10,6 @@ from project.two_factor_auth import tfa_check
 auth_bp = Blueprint('account', __name__)
 
 
-
-
-
 @auth_bp.route("/register", methods=["PUT"])
 @limiter.limit("100/hour")
 def user_register():

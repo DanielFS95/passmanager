@@ -5,9 +5,9 @@ from tabulate import tabulate
 from project.auth import check_if_session
 
 
-console = Console()
-
 logged_in_username = None
+
+console = Console()
 
 s = requests.Session()
 

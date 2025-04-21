@@ -2,8 +2,8 @@ from flask import Flask, request
 import os
 import logging
 from project.two_factor_auth import tfa_bp
-from project.user import user_bp
-from project.auth import auth_bp
+from project.service_endpoints import user_bp
+from project.auth_endpoints import auth_bp
 from project.common import init_limiter
 
 

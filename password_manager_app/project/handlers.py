@@ -1,8 +1,8 @@
 import msvcrt
 from project import common
 from .common import console, clear_screen
-from .service_utilities import retrieve_password, add_service, remove_pass
-from .auth import pwinput, login,create_user, delete_user, two_factor_qrcode, logout
+from .service_utilities import retrieve_password, add_service, remove_pass, delete_user
+from .auth import pwinput, login,create_user, two_factor_qrcode, logout
 from .two_factor_auth import remove_tfa
 
 

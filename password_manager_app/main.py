@@ -1,6 +1,7 @@
 from project.auth import check_if_session
 from project.handlers import *
-from project.common import s, list_services
+from project.common import s
+from project.service_utilities import list_services
 
 
 def logged_out_menu():

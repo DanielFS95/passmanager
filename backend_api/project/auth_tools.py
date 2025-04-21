@@ -8,7 +8,16 @@ from project.common import debug_db_connection, get_mariadb_pool
 import hashlib
 import requests
 import re
+from password_validator import PasswordValidator
 
+
+validatepass = PasswordValidator()
+validatepass\
+    .min(10)\
+    .has().uppercase()\
+    .has().lowercase()\
+    .has().digits()\
+    .no().spaces()
 
 
 def pass_encrypt(key, password):
@@ -166,6 +175,7 @@ def hibp_password_leak(password):
         line_remainder, leak_count = line.split(":")
         if line_remainder == password_remainder:
             return int(leak_count)
+
 
 def UsernameValidation(username):
     # username is between 4 and 25 characters

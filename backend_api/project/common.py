@@ -1,5 +1,4 @@
 import mariadb
-from password_validator import PasswordValidator
 import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -19,15 +18,6 @@ limiter = Limiter(
 
 def init_limiter(app):
     limiter.init_app(app)
-
-
-validatepass = PasswordValidator()
-validatepass\
-    .min(10)\
-    .has().uppercase()\
-    .has().lowercase()\
-    .has().digits()\
-    .no().spaces()
 
 
 mariadb_pool = None

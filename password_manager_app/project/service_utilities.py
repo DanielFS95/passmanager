@@ -304,11 +304,11 @@ def create_user():
             if user_tfa_choice.lower() == "j":
                 common.logged_in_username = username
                 if two_factor_qrcode():
-                    console.print("[bold bright_red]Der opstod et problem med 2FA opsætning. Prøv igen senere.[/bold bright_red]")
-                    return False
-                else:
                     clear_screen()
                     console.print(f"[bold green]2FA blev tilføjet for {username}![/bold green]")
+                else:
+                    console.print("[bold bright_red]Der opstod et problem med 2FA opsætning. Prøv igen senere.[/bold bright_red]")
+                    return False
             else:
                 clear_screen()
                 console.print("[italic]2FA blev fravalgt. Du kan altid tilføje det under dine account indstillinger.[/italic]")

@@ -5,15 +5,13 @@ from flask import request, jsonify, session
 import secrets
 import pyotp
 import qrcode
+import logging
 import os
 from io import StringIO
-from project.common import limiter, get_mariadb_pool
+from project.common import limiter, get_mariadb_pool, get_redis_pool
 from project.auth_tools import get_user_id_with_username, get_user_id_with_session_token, check_session, store_session, pass_decrypt, pass_encrypt
 
 tfa_bp = Blueprint('tfa', __name__)
-
-
-store_secret_key = {}      # Bruges til at kunne udnytte store_secret_key i anden funktion, uden behov for at sende nøglen tilbage igen. (Ingen session oprettet her)
 
 
 # Generate a qrcode for 2FA
@@ -24,7 +22,13 @@ def tfa_generate():
     username = data.get("username")
     secret_key = pyotp.random_base32()
     two_auth = pyotp.totp.TOTP(secret_key).provisioning_uri(name=username, issuer_name="Daniel's Password Manager")
-    store_secret_key[username] = secret_key
+    redis_client = get_redis_pool()
+    if redis_client:
+        redis_client.setex(f"tfa:secret:{username}", 300, secret_key)
+        logging.debug(f"Temporarily stored TFA secret for {username}")
+    else:
+        logging.error("Failed to get Redis client. TFA secret was not stored.")
+        return jsonify({"error":"Internal Server Error"}), 500
     session["username"] = username
     qr = qrcode.QRCode()
     qr.add_data(two_auth)
@@ -41,10 +45,19 @@ def verify_tfa():
     data = request.get_json()
     username = session.get("username")
     tfa_code = data.get("tfa_code")
-    tfa_key = store_secret_key.get(username)
+
+    if not username:
+        return jsonify({"error":"Invalid or expired 2FA setup process!"}), 400 
+    
+    redis_client = get_redis_pool()
+    if not redis_client:
+        logging.error("Failed to get Redis client. TFA secret was not retrieved.")
+        return jsonify({"error":"Internal Server Error"}), 500
+
+    tfa_key = redis_client.get(f"tfa:secret:{username}")
 
     if not tfa_key:
-        return jsonify({"error":"Invalid 2FA code!"}), 401
+        return jsonify({"error":"Invalid or expired 2FA setup process!"}), 400
 
     totp = pyotp.TOTP(tfa_key)
     session.pop("username", None)
@@ -61,7 +74,6 @@ def verify_tfa():
                     conn.commit()
         except mariadb.Error as e:
             return jsonify({"error": "Internal Server Error"}), 500
-        store_secret_key.pop(username, None)
         return jsonify({"tfa_complete": "succes"}), 200
     else:
         return jsonify({"error": "Invalid 2FA code!"}), 401
@@ -72,11 +84,14 @@ def verify_tfa():
 def remove_tfa():
     data = request.get_json()
     session_token = request.cookies.get("session_token")
+
     if not session_token:
         return jsonify({"error": "Unauthorized"}), 401
-    user_id = get_user_id_with_session_token(session_token)
+    
     if not check_session(session_token):
         return jsonify({"error": "Unauthorized"}), 401
+    
+    user_id = get_user_id_with_session_token(session_token)
     username = data.get("username")
     tfa_code = data.get("tfa_code")
     valid_tfa = validate_tfa(tfa_code, username, user_id)

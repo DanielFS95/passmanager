@@ -31,14 +31,18 @@ def two_factor_qrcode():
             tfa_code = input("Indtast en 2FA-Kode for at forsætte: ")
             headers = {"Content-Type": "application/json"}
             jsondata = {"tfa_code": tfa_code}
-            r = s.post("https://api.dfsprojekt.dk/tfa/verify", json=jsondata, headers=headers)
             if tfa_code == "b":
                 clear_screen()
                 break
-            elif r.status_code == 200 and r.json().get("tfa_complete"):
-                console.print("[bold bright_green]2FA er nu tilføjet til din konto![/bold bright_green]")
-                return False
-            elif r.status_code == 200 and r.json().get("error"):
-                console.print("Der var et problem!")
-                return True
+            else:
+                r = s.post("https://api.dfsprojekt.dk/tfa/verify", json=jsondata, headers=headers)
+                if r.status_code == 200 and r.json().get("tfa_complete"):
+                    console.print("[bold bright_green]2FA er nu tilføjet til din konto![/bold bright_green]")
+                    return True
+                elif r.status_code == 200 and r.json().get("error"):
+                    console.print("Der var et problem!")
+                    return False
+        return True
+    else:
+        console.print("[bold bright_red]Der opstod et problem, og QR koden blev ikke genereret![/bold bright_red]")
         return True

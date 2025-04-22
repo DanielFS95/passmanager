@@ -147,3 +147,4 @@ volumes:
   mariadb_data:
   mariadb_cnf:
   traefik-configurations:
+  redis_data:

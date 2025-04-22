@@ -60,7 +60,6 @@ def verify_tfa():
         return jsonify({"error":"Invalid or expired 2FA setup process!"}), 400
 
     totp = pyotp.TOTP(tfa_key)
-    session.pop("username", None)
     if totp.verify(tfa_code):
         user_id = get_user_id_with_username(username)
         encryption_key = bytes.fromhex(os.getenv("ENCRYPTION_KEY"))
@@ -69,12 +68,15 @@ def verify_tfa():
             with get_mariadb_pool().get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        "UPDATE pm_users SET tfa_key = %s WHERE user_id = %s AND username = %s", (key, user_id, username),
-                    )
+                        "UPDATE pm_users SET tfa_key = %s WHERE user_id = %s AND username = %s", (key, user_id, username),)
                     conn.commit()
+
+            session.pop("username", None)
+            return jsonify({"tfa_complete": "succes"}), 200
+        
         except mariadb.Error as e:
             return jsonify({"error": "Internal Server Error"}), 500
-        return jsonify({"tfa_complete": "succes"}), 200
+        
     else:
         return jsonify({"error": "Invalid 2FA code!"}), 401
 

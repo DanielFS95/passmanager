@@ -42,6 +42,9 @@ def two_factor_qrcode():
                 elif r.status_code == 200 and r.json().get("error"):
                     console.print("Der var et problem!")
                     return False
+                else:
+                    console.print("[bold bright_red]Der opstod et problem, og 2FA blev ikke tilføjet![/bold bright_red]")
+                    return False
         return True
     else:
         console.print("[bold bright_red]Der opstod et problem, og QR koden blev ikke genereret![/bold bright_red]")

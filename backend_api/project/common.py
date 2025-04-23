@@ -30,7 +30,6 @@ def redis_connection_pool():
         with redis_lock:
             if redis_client is None:
                 try:
-                    logging.debug("Attempting to initialize Redis connection pool...")
                     redis_pool = redis.ConnectionPool(
                         host=os.getenv("REDIS_HOST"),
                         port=int(os.getenv("REDIS_PORT")),
@@ -39,7 +38,6 @@ def redis_connection_pool():
                         decode_responses=True,
                     )
                     redis_client = redis.Redis(connection_pool=redis_pool)
-                    logging.debug("Redis connection pool initialized successfully.")
                 except redis.ConnectionError as e:
                     logging.critical("Connection error while connecting to Redis: %s", e)
                     return None
@@ -64,7 +62,6 @@ def mariadb_connection_pool():
         with mariadb_lock:
             if mariadb_pool is None:
                 try:
-                    logging.debug("🔄 Attempting to initialize MariaDB connection pool...")
                     mariadb_pool = mariadb.ConnectionPool(
                         user=os.getenv("MARIADB_USER"),
                         password=os.getenv("MARIADB_PASS"),
@@ -74,9 +71,8 @@ def mariadb_connection_pool():
                         pool_name="mariadb_pool",
                         pool_size=50
                     )
-                    logging.debug("✅ Connection pool initialized successfully.")
                 except mariadb.Error as e:
-                    logging.critical(f"❌ Database connection pool error: {e}")
+                    logging.critical(f"MariaDB connection pool error: {e}")
                     return None
     return mariadb_pool
 

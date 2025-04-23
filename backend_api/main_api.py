@@ -16,6 +16,8 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 init_limiter(app)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.getLogger("werkzeug").setLevel(logging.WARNING)
+
 
 @app.before_request
 def log_request():
@@ -25,6 +27,7 @@ def log_request():
         username = request_data.get("username", "Anonymous")
     logging.info(f"Incoming request: {request.method} {request.path} | Username: {username}")
 
+
 @app.after_request
 def log_response(response):
     logging.info(f"Response: {response.status_code}")
@@ -33,6 +36,7 @@ def log_response(response):
 app.register_blueprint(user_bp, url_prefix='/user')
 app.register_blueprint(tfa_bp, url_prefix='/tfa')
 app.register_blueprint(auth_bp, url_prefix='/account')
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=False)

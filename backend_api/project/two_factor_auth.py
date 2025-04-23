@@ -24,7 +24,7 @@ def tfa_generate():
     redis_client = get_redis_pool()
     if redis_client:
         redis_client.setex(f"tfa:secret:{username}", 300, secret_key)
-        logging.debug(f"Temporarily stored TFA secret for {username}")
+        logging.debug(f"Temporarily stored TFA secret for user: {username}")
     else:
         logging.error("Failed to get Redis client. TFA secret was not stored.")
         return jsonify({"error":"Internal Server Error"}), 500
@@ -35,7 +35,7 @@ def tfa_generate():
     qr_ascii = StringIO()
     qr.print_ascii(out=qr_ascii)
     qr_ascii_string = qr_ascii.getvalue()
-    logging.info(f"Generated QR code for {username}")
+    logging.info(f"Generated QR code for user: {username}")
     return jsonify({"qr_code_succes": qr_ascii_string}), 200
 
 
@@ -71,14 +71,14 @@ def verify_tfa():
                         "UPDATE pm_users SET tfa_key = %s WHERE user_id = %s AND username = %s", (key, user_id, username),)
                     conn.commit()
             session.pop("username", None)
-            logging.info(f"2FA setup completed for {username}")
+            logging.info(f"2FA setup completed for user: {username}")
             return jsonify({"tfa_complete": "succes"}), 200
         
         except mariadb.Error as e:
             return jsonify({"error": "Internal Server Error"}), 500
 
     else:
-        logging.error(f"Invalid 2FA code for {username} during setup")
+        logging.error(f"Invalid 2FA code during setup for user: {username}")
         return jsonify({"error": "Invalid 2FA code!"}), 401
 
 
@@ -108,10 +108,10 @@ def remove_tfa():
                     conn.commit()
         except mariadb.Error as e:
             return jsonify({"error": "Internal Server Error"}), 500
-        logging.info(f"2FA removed for {username}")
+        logging.info(f"2FA removed for user: {username}")
         return jsonify({"tfa_removed": "succes"}), 200
     else:
-        logging.error(f"Invalid 2FA code for {username} during removal")
+        logging.error(f"Invalid 2FA code during removal for user: {username}")
         return jsonify({"error": "Internal Server Error"}), 500
 
 
@@ -131,10 +131,10 @@ def tfa_login():
         store_session(session_token, user_id, expires_at, username)
         response = jsonify({"tfa-success": "Login OK"})
         response.set_cookie("session_token", session_token)
-        logging.info(f"2FA login successful for {username}")
+        logging.info(f"2FA login successful for user: {username}")
         return response, 200
     else:
-        logging.error(f"Invalid 2FA code for {username} during login")
+        logging.error(f"Invalid 2FA code during login for user: {username}")
         return jsonify({"error": "Internal Server Error"}), 500
 
 

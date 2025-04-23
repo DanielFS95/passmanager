@@ -13,7 +13,6 @@ from project.auth_tools import get_user_id_with_username, get_user_id_with_sessi
 
 tfa_bp = Blueprint('tfa', __name__)
 
-
 # Generate a qrcode for 2FA
 @tfa_bp.route("/generate", methods=["POST"])
 @limiter.limit("100/hour")
@@ -36,6 +35,7 @@ def tfa_generate():
     qr_ascii = StringIO()
     qr.print_ascii(out=qr_ascii)
     qr_ascii_string = qr_ascii.getvalue()
+    logging.info(f"Generated QR code for {username}")
     return jsonify({"qr_code_succes": qr_ascii_string}), 200
 
 
@@ -48,7 +48,7 @@ def verify_tfa():
 
     if not username:
         return jsonify({"error":"Invalid or expired 2FA setup process!"}), 400 
-    
+
     redis_client = get_redis_pool()
     if not redis_client:
         logging.error("Failed to get Redis client. TFA secret was not retrieved.")
@@ -70,14 +70,15 @@ def verify_tfa():
                     cursor.execute(
                         "UPDATE pm_users SET tfa_key = %s WHERE user_id = %s AND username = %s", (key, user_id, username),)
                     conn.commit()
-
             session.pop("username", None)
+            logging.info(f"2FA setup completed for {username}")
             return jsonify({"tfa_complete": "succes"}), 200
         
         except mariadb.Error as e:
             return jsonify({"error": "Internal Server Error"}), 500
-        
+
     else:
+        logging.error(f"Invalid 2FA code for {username} during setup")
         return jsonify({"error": "Invalid 2FA code!"}), 401
 
 
@@ -107,8 +108,10 @@ def remove_tfa():
                     conn.commit()
         except mariadb.Error as e:
             return jsonify({"error": "Internal Server Error"}), 500
+        logging.info(f"2FA removed for {username}")
         return jsonify({"tfa_removed": "succes"}), 200
     else:
+        logging.error(f"Invalid 2FA code for {username} during removal")
         return jsonify({"error": "Internal Server Error"}), 500
 
 
@@ -128,8 +131,10 @@ def tfa_login():
         store_session(session_token, user_id, expires_at, username)
         response = jsonify({"tfa-success": "Login OK"})
         response.set_cookie("session_token", session_token)
+        logging.info(f"2FA login successful for {username}")
         return response, 200
     else:
+        logging.error(f"Invalid 2FA code for {username} during login")
         return jsonify({"error": "Internal Server Error"}), 500
 
 
@@ -156,6 +161,9 @@ def validate_tfa(tfa_code, username, user_id):
             with conn.cursor() as cursor:
                 cursor.execute("SELECT tfa_key FROM pm_users WHERE username = %s AND user_id = %s", (username, user_id))
                 result = cursor.fetchone()
+                if not result:
+                    return False
+                
                 encrypted_tfa_key = result[0]
                 encryption_key = bytes.fromhex(os.getenv("ENCRYPTION_KEY"))
                 decrypted_key = pass_decrypt(encryption_key, encrypted_tfa_key)

@@ -1,26 +1,25 @@
 from .common import console, clear_screen, s
-from project import common
+from .art import dpm_logo
 
-def remove_tfa():
-    console.print("[underline] Skriv \"b\" for at fortryde og vende tilbage til menuen [/underline]\n")
-    tfa_code = input("Indtast din 2FA Kode: ")
+def remove_tfa(username):
+    console.print(dpm_logo)
+    console.print("[italic]Enter \"b\" to return to the menu[/italic\n]")
+    tfa_code = input("Enter your 2FA-Code: ")
     if tfa_code == "b":
         clear_screen()
         return
-    username = common.logged_in_username
     headers = {"Content-Type": "application/json"}
     jsondata = {"username": username, "tfa_code": tfa_code}
     r = s.delete("https://api.dfsprojekt.dk/tfa/remove", json=jsondata, headers=headers)
     if r.status_code == 200 and r.json().get("tfa_removed"):
         clear_screen()
-        console.print("[bold bright_green]2FA blev fjernet succesfuldt![/bold bright_green]")
+        console.print("[bold bright_green]2FA has been removed sucessfully![/bold bright_green]")
     else:
         clear_screen()
-        console.print("[bold bright_red]Der opstod et problem, og 2FA blev ikke fjernet fra din account[/bold bright_red]")
+        console.print("[bold bright_red]There was an issue. 2FA was not removed from your account. Please try again later or contact the developer for support.[/bold bright_red]")
 
 
-def two_factor_qrcode():
-    username = common.logged_in_username
+def two_factor_qrcode(username):
     jsondata = {"username": username}
     headers = {"Content-Type": "application/json"}
     r = s.post("https://api.dfsprojekt.dk/tfa/generate", json=jsondata, headers=headers)
@@ -28,7 +27,7 @@ def two_factor_qrcode():
     print(data)
     if r.status_code == 200 and r.json().get("qr_code_succes"):
         while True:
-            tfa_code = input("Indtast en 2FA-Kode for at forsætte: ")
+            tfa_code = input("Enter your 2FA-Code to continue: ")
             headers = {"Content-Type": "application/json"}
             jsondata = {"tfa_code": tfa_code}
             if tfa_code == "b":
@@ -37,15 +36,15 @@ def two_factor_qrcode():
             else:
                 r = s.post("https://api.dfsprojekt.dk/tfa/verify", json=jsondata, headers=headers)
                 if r.status_code == 200 and r.json().get("tfa_complete"):
-                    console.print("[bold bright_green]2FA er nu tilføjet til din konto![/bold bright_green]")
+                    clear_screen()
+                    
                     return True
-                elif r.status_code == 200 and r.json().get("error"):
-                    console.print("Der var et problem!")
+                elif r.status_code == 500 and r.json().get("error"):
+                    console.print("There was an issue with the 2FA code. Please try again.")
                     return False
                 else:
-                    console.print("[bold bright_red]Der opstod et problem, og 2FA blev ikke tilføjet![/bold bright_red]")
-                    return False
+                    console.print("[bold bright_red]There was an issue, 2FA was not added to your account![/bold bright_red]")
         return True
     else:
-        console.print("[bold bright_red]Der opstod et problem, og QR koden blev ikke genereret![/bold bright_red]")
+        console.print("[bold bright_red]There was an issue generating the QR-Code. Please try again later![/bold bright_red]")
         return True

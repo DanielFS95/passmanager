@@ -54,9 +54,7 @@ def user_login():
         session_token = secrets.token_hex(32)
         expires_at = datetime.now() + timedelta(minutes=30)
 
-        check_tfa = tfa_check(username, user_id)
-
-        if check_tfa:
+        if tfa_check(username, user_id):
             return jsonify({"get_tfa_code": "await_user", "username": username}), 200
 
         else:

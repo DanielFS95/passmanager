@@ -6,8 +6,6 @@ import logging
 import threading
 import redis
 
-logging.basicConfig(level=logging.DEBUG)
-
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["500 per day", "60 per hour"],

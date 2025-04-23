@@ -23,11 +23,11 @@ def log_request():
     username = request.cookies.get("username", "Anonymous")
     if username == "Anonymous":
         username = request_data.get("username", "Anonymous")
-    logging.info(f"📥 Incoming request: {request.method} {request.path} | Username: {username}")
+    logging.info(f"Incoming request: {request.method} {request.path} | Username: {username}")
 
 @app.after_request
 def log_response(response):
-    logging.info(f"📤 Response: {response.status_code}")
+    logging.info(f"Response: {response.status_code}")
     return response
 
 app.register_blueprint(user_bp, url_prefix='/user')
